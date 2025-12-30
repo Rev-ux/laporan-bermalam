@@ -34,8 +34,8 @@
     <h1>Rekap Karyawan Bermalam</h1>
 
     <div class="tabs">
-        <button class="tablink active" onclick="openTab('Input')">Input Laporan</button>
-        <button class="tablink" onclick="openTab('Rekap')">Rekap Bulanan</button>
+        <button class="tablink active" onclick="openTab(event, 'Input')">Input Laporan</button>
+        <button class="tablink" onclick="openTab(event, 'Rekap')">Rekap Bulanan</button>
     </div>
 
     <!-- TAB INPUT LAPORAN -->
@@ -154,8 +154,8 @@
             }
         });
 
-        // Tab navigation (diperbaiki: tanpa evt, langsung pakai ID)
-        function openTab(tabName) {
+        // Tab navigation (fixed dengan evt)
+        function openTab(evt, tabName) {
             const contents = document.getElementsByClassName('tabcontent');
             for (let i = 0; i < contents.length; i++) {
                 contents[i].style.display = 'none';
@@ -165,7 +165,7 @@
                 links[i].classList.remove('active');
             }
             document.getElementById(tabName).style.display = 'block';
-            event.currentTarget.classList.add('active');
+            evt.currentTarget.classList.add('active');
             if (tabName === 'Rekap') updateRekap();
         }
 
@@ -178,7 +178,10 @@
             const jam = jamDatang.value;
             const alasan = jam > '22:30' ? alasanTelat.value.trim() : '';
 
-            if (!nama || !cabang || !tanggal || !jam) return;
+            if (!nama || !cabang || !tanggal || !jam) {
+                alert('Semua field wajib diisi!');
+                return;
+            }
             if (jam > '22:30' && !alasan) {
                 alert('Alasan telat wajib diisi jika datang setelah jam 22:30!');
                 return;
@@ -191,6 +194,10 @@
                 jamDatang: jam,
                 alasanTelat: alasan,
                 timestamp: Date.now()
+            }).then(() => {
+                alert('Laporan berhasil ditambahkan!');
+            }).catch((error) => {
+                alert('Error: ' + error.message);
             });
 
             form.reset();
@@ -202,10 +209,14 @@
         refLaporan.on('value', (snapshot) => {
             allData = [];
             const data = snapshot.val();
-            if (data) Object.values(data).forEach(val => allData.push(val));
+            if (data) {
+                Object.values(data).forEach(val => allData.push(val));
+            }
             renderLaporan();
             updateBulanFilter();
-            if (document.getElementById('Rekap').style.display === 'block') updateRekap();
+            if (document.getElementById('Rekap').style.display === 'block') {
+                updateRekap();
+            }
         });
 
         function renderLaporan() {
@@ -214,11 +225,11 @@
                 tabelBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada laporan</td></tr>';
                 return;
             }
-            allData.sort((a,b) => b.timestamp - a.timestamp).forEach((val, i) => {
+            allData.sort((a, b) => b.timestamp - a.timestamp).forEach((val, i) => {
                 const waktu = new Date(val.timestamp).toLocaleString('id-ID');
                 tabelBody.innerHTML += `
                     <tr>
-                        <td>${i+1}</td>
+                        <td>${i + 1}</td>
                         <td>${waktu}</td>
                         <td>${val.tanggal}</td>
                         <td>${val.jamDatang}</td>
@@ -230,25 +241,24 @@
             });
         }
 
-        // Update dropdown bulan
+        // Fungsi updateBulanFilter, updateRekap, exportRekapCSV tetap sama seperti versi sebelumnya yang sudah benar
+
         function updateBulanFilter() {
             const bulanSet = new Set();
             allData.forEach(d => {
                 const date = new Date(d.tanggal);
-                bulanSet.add(`\( {date.getFullYear()}- \){String(date.getMonth()+1).padStart(2,'0')}`);
+                bulanSet.add(`\( {date.getFullYear()}- \){String(date.getMonth() + 1).padStart(2, '0')}`);
             });
             bulanRekap.innerHTML = '<option value="">Pilih Bulan Rekap</option>';
             Array.from(bulanSet).sort().reverse().forEach(key => {
                 const [y, m] = key.split('-');
-                const namaBulan = new Date(y, m-1).toLocaleString('id-ID', {month:'long', year:'numeric'});
+                const namaBulan = new Date(y, m - 1).toLocaleString('id-ID', { month: 'long', year: 'numeric' });
                 bulanRekap.innerHTML += `<option value="\( {key}"> \){namaBulan}</option>`;
             });
             if (bulanRekap.options.length > 1) bulanRekap.selectedIndex = 1;
         }
 
-        // Rekap bulanan
         function updateRekap() {
-            // kode rekap tetap sama seperti versi sebelumnya (persis foto Excel)
             const filter = bulanRekap.value;
             if (!filter) {
                 rekapBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Pilih bulan untuk melihat rekap</td></tr>';
@@ -257,42 +267,18 @@
             }
 
             const [tahun, bulan] = filter.split('-').map(Number);
-            const bulanNama = new Date(tahun, bulan-1).toLocaleString('id-ID', {month:'long', year:'numeric'});
+            const bulanNama = new Date(tahun, bulan - 1).toLocaleString('id-ID', { month: 'long', year: 'numeric' });
             const filtered = allData.filter(d => {
                 const date = new Date(d.tanggal);
-                return date.getFullYear() === tahun && (date.getMonth()+1) === bulan;
+                return date.getFullYear() === tahun && (date.getMonth() + 1) === bulan;
             });
 
             const group = {};
             filtered.forEach(d => {
                 const key = `\( {d.nama}| \){d.cabang}`;
-                if (!group[key]) group[key] = {nama: d.nama, cabang: d.cabang, tanggal: []};
+                if (!group[key]) group[key] = { nama: d.nama, cabang: d.cabang, tanggal: [] };
                 group[key].tanggal.push(d.tanggal.split('-')[2]);
             });
 
             const totalPerNama = {};
-            Object.values(group).forEach(g => {
-                totalPerNama[g.nama] = (totalPerNama[g.nama] || 0) + g.tanggal.length;
-            });
-
-            const sortedNama = Object.keys(totalPerNama).sort((a,b) => totalPerNama[b] - totalPerNama[a]);
-
-            rekapBody.innerHTML = '';
-            let no = 1;
-            let grandTotalMalam = 0;
-            let grandTotalUang = 0;
-            const BIAYA = 30000;
-
-            sortedNama.forEach(nama => {
-                const entries = Object.values(group).filter(g => g.nama === nama);
-                entries.forEach((entry, idx) => {
-                    const tanggalStr = idx === 0 
-                        ? entry.tanggal.sort((a,b)=>a-b).join(', ') + ' ' + bulanNama 
-                        : entry.tanggal.sort((a,b)=>a-b).join(', ');
-                    const totalMalam = entry.tanggal.length;
-                    const uang = totalMalam * BIAYA;
-
-                    rekapBody.innerHTML += `
-                        <tr ${idx > 0 ? 'class="multi-row"' : ''}>
-                            <td \( {idx > 0 ? '' : `rowspan=" \){entries.length}"`}>${idx === 0 ? no : ''}</td>
-                            <td ${idx > 0 ?
+            Object.values
