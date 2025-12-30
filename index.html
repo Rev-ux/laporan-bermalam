@@ -7,14 +7,15 @@
     <style>
         body { font-family: Arial, sans-serif; background: #f4f6f9; padding: 20px; max-width: 1200px; margin: auto; }
         h1 { text-align: center; color: #333; }
-        .tabs { overflow: hidden; border-bottom: 1px solid #ccc; margin-bottom: 20px; }
+        .tabs { overflow: hidden; border-bottom: 2px solid #007bff; margin-bottom: 30px; }
         .tablink { background: #f1f1f1; float: left; border: none; outline: none; cursor: pointer; padding: 14px 20px; font-size: 17px; width: 50%; }
         .tablink:hover { background: #ddd; }
         .tablink.active { background: #007bff; color: white; }
-        .tabcontent { display: none; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .tabcontent { display: none; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from {opacity:0;} to {opacity:1;} }
         form { padding: 25px; margin-bottom: 30px; }
         label { display: block; margin: 15px 0 5px; font-weight: bold; color: #444; }
-        input, select { padding: 12px; width: 100%; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
+        input, select { padding: 12px; width: 100%; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
         button { background: #28a745; color: white; padding: 12px 20px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
         button:hover { background: #218838; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
@@ -22,10 +23,11 @@
         th { background: #007bff; color: white; }
         tr:hover { background: #f8f9fa; }
         .search-input { margin: 15px 0; padding: 10px; width: 100%; }
-        .export-btn { background: #ffc107; color: #333; margin: 20px 0; padding: 12px; }
+        .export-btn { background: #ffc107; color: #333; margin: 20px 0; padding: 12px; width: 100%; font-size: 16px; }
         .export-btn:hover { background: #e0a800; }
-        .total-summary { font-weight: bold; font-size: 1.2em; text-align: right; margin: 20px 0; background: #e9ecef; padding: 15px; border-radius: 8px; }
-        .filter-select { padding: 10px; margin-bottom: 20px; width: 100%; }
+        .total-summary { font-weight: bold; font-size: 1.3em; text-align: right; margin: 30px 0; background: #e9ecef; padding: 20px; border-radius: 8px; }
+        .filter-select { padding: 12px; margin-bottom: 20px; width: 100%; font-size: 16px; }
+        #alasanContainer { display: none; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -53,19 +55,29 @@
             <label>Tanggal Bermalam</label>
             <input type="date" id="tanggal" required>
 
+            <label>Jam Datang</label>
+            <input type="time" id="jamDatang" required>
+
+            <div id="alasanContainer">
+                <label>Alasan Telat (wajib jika datang > 22:30)</label>
+                <input type="text" id="alasanTelat" placeholder="Tuliskan alasan keterlambatan">
+            </div>
+
             <button type="submit">Tambah Laporan</button>
         </form>
 
         <h2>Daftar Laporan Terbaru</h2>
-        <input type="text" id="searchInput" class="search-input" placeholder="Cari nama atau cabang...">
+        <input type="text" id="searchInput" class="search-input" placeholder="Cari nama, cabang, atau alasan...">
         <table id="tabelLaporan">
             <thead>
                 <tr>
                     <th>No</th>
                     <th>Waktu Input</th>
-                    <th>Tanggal Bermalam</th>
-                    <th>Nama Karyawan</th>
+                    <th>Tanggal</th>
+                    <th>Jam Datang</th>
+                    <th>Nama</th>
                     <th>Cabang</th>
+                    <th>Alasan Telat</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -86,6 +98,7 @@
                     <th>CABANG DIINAPI</th>
                     <th>TOTAL BERMALAM</th>
                     <th>JUMLAH UANG BERMALAM</th>
+                    <th>ALASAN TELAT</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -118,6 +131,9 @@ const firebaseConfig = {
         const refLaporan = db.ref('laporan');
 
         const form = document.getElementById('laporanForm');
+        const jamDatang = document.getElementById('jamDatang');
+        const alasanContainer = document.getElementById('alasanContainer');
+        const alasanTelat = document.getElementById('alasanTelat');
         const tabelBody = document.querySelector('#tabelLaporan tbody');
         const rekapBody = document.querySelector('#tabelRekap tbody');
         const bulanRekap = document.getElementById('bulanRekap');
@@ -128,7 +144,20 @@ const firebaseConfig = {
         // Set tanggal default hari ini
         document.getElementById('tanggal').valueAsDate = new Date();
 
-        // Tab navigation
+        // Cek jam datang > 22:30 → tampilkan alasan
+        jamDatang.addEventListener('change', () => {
+            const jam = jamDatang.value;
+            if (jam > '22:30') {
+                alasanContainer.style.display = 'block';
+                alasanTelat.required = true;
+            } else {
+                alasanContainer.style.display = 'none';
+                alasanTelat.required = false;
+                alasanTelat.value = '';
+            }
+        });
+
+        // Tab navigation (diperbaiki)
         function openTab(evt, tabName) {
             const tabcontent = document.getElementsByClassName("tabcontent");
             for (let i = 0; i < tabcontent.length; i++) {
@@ -141,7 +170,9 @@ const firebaseConfig = {
             document.getElementById(tabName).style.display = "block";
             evt.currentTarget.className += " active";
 
-            if (tabName === 'Rekap') updateRekap();
+            if (tabName === 'Rekap') {
+                updateRekap();
+            }
         }
 
         // Tambah laporan
@@ -150,16 +181,27 @@ const firebaseConfig = {
             const nama = document.getElementById('nama').value.trim().toUpperCase();
             const cabang = document.getElementById('cabang').value;
             const tanggal = document.getElementById('tanggal').value;
+            const jam = jamDatang.value;
+            const alasan = jam > '22:30' ? alasanTelat.value.trim() : '';
 
-            if (nama && cabang && tanggal) {
+            if (nama && cabang && tanggal && jam) {
+                if (jam > '22:30' && !alasan) {
+                    alert('Alasan telat wajib diisi jika datang setelah jam 22:30!');
+                    return;
+                }
+
                 refLaporan.push({
                     nama,
                     cabang,
                     tanggal,
+                    jamDatang: jam,
+                    alasanTelat: alasan,
                     timestamp: Date.now()
                 });
+
                 form.reset();
                 document.getElementById('tanggal').valueAsDate = new Date();
+                alasanContainer.style.display = 'none';
             }
         });
 
@@ -172,7 +214,9 @@ const firebaseConfig = {
             }
             renderLaporan();
             updateBulanFilter();
-            if (document.getElementById('Rekap').style.display === 'block') updateRekap();
+            if (document.getElementById('Rekap').style.display === 'block') {
+                updateRekap();
+            }
         });
 
         function renderLaporan() {
@@ -184,8 +228,10 @@ const firebaseConfig = {
                         <td>${i+1}</td>
                         <td>${waktu}</td>
                         <td>${val.tanggal}</td>
+                        <td>${val.jamDatang}</td>
                         <td>${val.nama}</td>
                         <td>${val.cabang}</td>
+                        <td>${val.alasanTelat || '-'}</td>
                     </tr>
                 `;
             });
@@ -208,11 +254,11 @@ const firebaseConfig = {
             if (bulanRekap.options.length > 1) bulanRekap.selectedIndex = 1;
         }
 
-        // Update rekap bulanan (mirip Excel)
+        // Update rekap bulanan
         function updateRekap() {
             const filter = bulanRekap.value;
             if (!filter) {
-                rekapBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Pilih bulan untuk melihat rekap</td></tr>';
+                rekapBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Pilih bulan untuk melihat rekap</td></tr>';
                 totalSummary.textContent = '';
                 return;
             }
@@ -225,11 +271,17 @@ const firebaseConfig = {
 
             const group = {};
             filtered.forEach(d => {
-                if (!group[d.nama]) group[d.nama] = {tanggal: [], cabang: new Set(), total: 0};
+                if (!group[d.nama]) group[d.nama] = {
+                    tanggal: [],
+                    cabang: new Set(),
+                    total: 0,
+                    alasan: []
+                };
                 const hari = d.tanggal.split('-')[2];
                 group[d.nama].tanggal.push(hari);
                 group[d.nama].cabang.add(d.cabang);
                 group[d.nama].total += 1;
+                if (d.alasanTelat) group[d.nama].alasan.push(`${hari}: ${d.alasanTelat}`);
             });
 
             const sorted = Object.entries(group).sort((a,b) => b[1].total - a[1].total);
@@ -240,9 +292,10 @@ const firebaseConfig = {
             const BIAYA_PER_MALAM = 30000;
 
             sorted.forEach(([nama, info], idx) => {
-                const tanggalStr = info.tanggal.sort((a,b) => a-b).join(', ') + ` ${new Date(tahun, bulan-1).toLocaleString('id-ID', {month:'long', year:'numeric'}).split(' ')[1]} ${tahun}`;
+                const tanggalStr = info.tanggal.sort((a,b)=>a-b).join(', ') + ` ${new Date(tahun, bulan-1).toLocaleString('id-ID', {month:'long', year:'numeric'}).split(' ')[1]} ${tahun}`;
                 const cabangStr = Array.from(info.cabang).join(', ');
                 const uang = info.total * BIAYA_PER_MALAM;
+                const alasanStr = info.alasan.length > 0 ? info.alasan.join('; ') : '-';
 
                 rekapBody.innerHTML += `
                     <tr>
@@ -252,6 +305,7 @@ const firebaseConfig = {
                         <td>${cabangStr}</td>
                         <td>${info.total} x</td>
                         <td>Rp ${uang.toLocaleString('id-ID')}</td>
+                        <td>${alasanStr}</td>
                     </tr>
                 `;
                 grandTotalMalam += info.total;
@@ -264,15 +318,28 @@ const firebaseConfig = {
         // Export rekap ke CSV
         function exportRekapCSV() {
             if (!bulanRekap.value) { alert('Pilih bulan dulu!'); return; }
-            let csv = "NO,NAMA KARYAWAN,TANGGAL BERMALAM,CABANG DIINAPI,TOTAL BERMALAM,JUMLAH UANG BERMALAM\n";
+            let csv = "NO,NAMA KARYAWAN,TANGGAL BERMALAM,CABANG DIINAPI,TOTAL BERMALAM,JUMLAH UANG BERMALAM,ALASAN TELAT\n";
             document.querySelectorAll('#tabelRekap tbody tr').forEach((row, i) => {
                 const cells = row.querySelectorAll('td');
-                if (cells.length === 6) {
-                    csv += `\( {i+1}, \){cells[1].textContent},"\( {cells[2].textContent}", \){cells[3].textContent},\( {cells[4].textContent}, \){cells[5].textContent}\n`;
+                if (cells.length === 7) {
+                    csv += `\( {i+1}, \){cells[1].textContent},"\( {cells[2].textContent}", \){cells[3].textContent},\( {cells[4].textContent}, \){cells[5].textContent},"${cells[6].textContent}"\n`;
                 }
             });
-            const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+            const blob = new Blob(['\uFEFF' + csv], {type: 'text/csv;charset=utf-8;'});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download
+            a.download = `Rekap_Bermalam_${bulanRekap.selectedOptions[0].text}.csv`;
+            a.click();
+        }
+
+        // Search
+        searchInput.addEventListener('input', () => {
+            const filter = searchInput.value.toLowerCase();
+            document.querySelectorAll('#tabelLaporan tbody tr').forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(filter) ? '' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>
