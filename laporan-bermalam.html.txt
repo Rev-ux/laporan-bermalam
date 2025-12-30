@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Datang Bermalam</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f6f9; padding: 20px; max-width: 900px; margin: auto; }
+        h1 { text-align: center; color: #333; }
+        form { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); margin-bottom: 30px; }
+        label { display: block; margin: 15px 0 5px; font-weight: bold; color: #444; }
+        input { padding: 12px; width: 100%; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; }
+        button { background: #28a745; color: white; padding: 12px 20px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        button:hover { background: #218838; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        th, td { padding: 14px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #007bff; color: white; }
+        tr:hover { background: #f8f9fa; }
+        .timestamp { font-size: 0.9em; color: #666; text-align: center; margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Laporan Datang Bermalam</h1>
+    <p class="timestamp">Update real-time otomatis</p>
+
+    <form id="laporanForm">
+        <label>Nama</label>
+        <input type="text" id="nama" required>
+
+        <label>Jam Datang</label>
+        <input type="time" id="jam" required>
+
+        <label>Tempat (misal: Kos Putri Melati)</label>
+        <input type="text" id="tempat" required>
+
+        <label>Tanggal</label>
+        <input type="date" id="tanggal" required>
+
+        <button type="submit">Tambah Laporan</button>
+    </form>
+
+    <h2>Daftar Laporan Terbaru</h2>
+    <table id="tabelLaporan">
+        <thead>
+            <tr>
+                <th>No</th>
+                <th>Waktu Input</th>
+                <th>Tanggal</th>
+                <th>Nama</th>
+                <th>Jam Datang</th>
+                <th>Tempat</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
+    <script>
+        // === GANTI DENGAN CONFIG ANDA SENDIRI ===
+      const firebaseConfig = {
+  apiKey: "AIzaSyBthcmgxb-S7AOqhQEkRl4gA2tGtc373DE",
+  authDomain: "laporan-bermalam.firebaseapp.com",
+  databaseURL: "https://laporan-bermalam-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "laporan-bermalam",
+  storageBucket: "laporan-bermalam.firebasestorage.app",
+  messagingSenderId: "999268337318",
+  appId: "1:999268337318:web:ca06ca521b49347bce9667",
+  measurementId: "G-NPZ94WSPXX"
+};
+        // =========================================
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const refLaporan = db.ref('laporan');
+
+        const form = document.getElementById('laporanForm');
+        const tabelBody = document.querySelector('#tabelLaporan tbody');
+
+        // Set tanggal default hari ini
+        document.getElementById('tanggal').valueAsDate = new Date();
+
+        // Tambah laporan
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const nama = document.getElementById('nama').value.trim();
+            const jam = document.getElementById('jam').value;
+            const tempat = document.getElementById('tempat').value.trim();
+            const tanggal = document.getElementById('tanggal').value;
+
+            if (nama && jam && tempat && tanggal) {
+                refLaporan.push({
+                    nama,
+                    jam,
+                    tempat,
+                    tanggal,
+                    timestamp: Date.now()
+                });
+
+                form.reset();
+                document.getElementById('tanggal').valueAsDate = new Date();
+            }
+        });
+
+        // Tampilkan laporan real-time (urut terbaru di atas)
+        refLaporan.orderByChild('timestamp').on('value', (snapshot) => {
+            tabelBody.innerHTML = '';
+            const data = snapshot.val();
+            if (data) {
+                const entries = Object.entries(data).reverse(); // terbaru di atas
+                entries.forEach(([key, val], index) => {
+                    const waktu = new Date(val.timestamp).toLocaleString('id-ID');
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${waktu}</td>
+                        <td>${val.tanggal}</td>
+                        <td>${val.nama}</td>
+                        <td>${val.jam}</td>
+                        <td>${val.tempat}</td>
+                    `;
+                    tabelBody.appendChild(row);
+                });
+            } else {
+                tabelBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Belum ada laporan</td></tr>';
+            }
+        });
+    </script>
+</body>
+</html>
