@@ -155,19 +155,22 @@ const firebaseConfig = {
             }
         });
 
-        // Tab navigation (fixed dengan evt)
+        // Tab navigation (fixed)
         function openTab(evt, tabName) {
-            const contents = document.getElementsByClassName('tabcontent');
-            for (let i = 0; i < contents.length; i++) {
-                contents[i].style.display = 'none';
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
             }
-            const links = document.getElementsByClassName('tablink');
-            for (let i = 0; i < links.length; i++) {
-                links[i].classList.remove('active');
+            tablinks = document.getElementsByClassName("tablink");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
             }
-            document.getElementById(tabName).style.display = 'block';
-            evt.currentTarget.classList.add('active');
-            if (tabName === 'Rekap') updateRekap();
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+            if (tabName === 'Rekap') {
+                updateRekap();
+            }
         }
 
         // Tambah laporan
@@ -195,12 +198,9 @@ const firebaseConfig = {
                 jamDatang: jam,
                 alasanTelat: alasan,
                 timestamp: Date.now()
-            }).then(() => {
-                alert('Laporan berhasil ditambahkan!');
-            }).catch((error) => {
-                alert('Error: ' + error.message);
             });
 
+            alert('Laporan berhasil ditambahkan!');
             form.reset();
             document.getElementById('tanggal').valueAsDate = new Date();
             alasanContainer.style.display = 'none';
@@ -223,7 +223,7 @@ const firebaseConfig = {
         function renderLaporan() {
             tabelBody.innerHTML = '';
             if (allData.length === 0) {
-                tabelBody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Belum ada laporan</td></tr>';
+                tabelBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#666;">Belum ada laporan</td></tr>';
                 return;
             }
             allData.sort((a, b) => b.timestamp - a.timestamp).forEach((val, i) => {
@@ -242,8 +242,6 @@ const firebaseConfig = {
             });
         }
 
-        // Fungsi updateBulanFilter, updateRekap, exportRekapCSV tetap sama seperti versi sebelumnya yang sudah benar
-
         function updateBulanFilter() {
             const bulanSet = new Set();
             allData.forEach(d => {
@@ -251,7 +249,7 @@ const firebaseConfig = {
                 bulanSet.add(`\( {date.getFullYear()}- \){String(date.getMonth() + 1).padStart(2, '0')}`);
             });
             bulanRekap.innerHTML = '<option value="">Pilih Bulan Rekap</option>';
-            Array.from(bulanSet).sort().reverse().forEach(key => {
+            Array.from(bulanSet).sort((a, b) => b.localeCompare(a)).forEach(key => {
                 const [y, m] = key.split('-');
                 const namaBulan = new Date(y, m - 1).toLocaleString('id-ID', { month: 'long', year: 'numeric' });
                 bulanRekap.innerHTML += `<option value="\( {key}"> \){namaBulan}</option>`;
@@ -262,7 +260,7 @@ const firebaseConfig = {
         function updateRekap() {
             const filter = bulanRekap.value;
             if (!filter) {
-                rekapBody.innerHTML = '<tr><td colspan="6" style="text-align:center;">Pilih bulan untuk melihat rekap</td></tr>';
+                rekapBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#666;">Pilih bulan untuk melihat rekap</td></tr>';
                 totalSummary.textContent = '';
                 return;
             }
@@ -282,5 +280,75 @@ const firebaseConfig = {
             });
 
             const totalPerNama = {};
-            Object.values
+            Object.values(group).forEach(g => {
+                totalPerNama[g.nama] = (totalPerNama[g.nama] || 0) + g.tanggal.length;
+            });
 
+            const sortedNama = Object.keys(totalPerNama).sort((a, b) => totalPerNama[b] - totalPerNama[a]);
+
+            rekapBody.innerHTML = '';
+            let no = 1;
+            let grandTotalMalam = 0;
+            let grandTotalUang = 0;
+            const BIAYA = 30000;
+
+            sortedNama.forEach(nama => {
+                const entries = Object.values(group).filter(g => g.nama === nama);
+                entries.forEach((entry, idx) => {
+                    const tanggalStr = idx === 0 
+                        ? entry.tanggal.sort((a, b) => a - b).join(', ') + ' ' + bulanNama 
+                        : entry.tanggal.sort((a, b) => a - b).join(', ');
+                    const totalMalam = entry.tanggal.length;
+                    const uang = totalMalam * BIAYA;
+
+                    rekapBody.innerHTML += `
+                        <tr ${idx > 0 ? 'class="multi-row"' : ''}>
+                            <td \( {idx > 0 ? '' : `rowspan=" \){entries.length}"`}>${idx === 0 ? no : ''}</td>
+                            <td \( {idx > 0 ? '' : `rowspan=" \){entries.length}"`}>${nama}</td>
+                            <td>${tanggalStr}</td>
+                            <td>${entry.cabang}</td>
+                            <td>${totalMalam} x</td>
+                            <td>Rp ${uang.toLocaleString('id-ID')}</td>
+                        </tr>
+                    `;
+                    if (idx === 0) {
+                        grandTotalMalam += totalPerNama[nama];
+                        grandTotalUang += totalPerNama[nama] * BIAYA;
+                        no++;
+                    }
+                });
+            });
+
+            totalSummary.textContent = `Total Bermalam: ${grandTotalMalam} malam | Total Uang Bermalam: Rp ${grandTotalUang.toLocaleString('id-ID')}`;
+        }
+
+        function exportRekapCSV() {
+            if (!bulanRekap.value) {
+                alert('Pilih bulan dulu!');
+                return;
+            }
+            let csv = "NO,NAMA KARYAWAN,TANGGAL BERMALAM,CABANG DIINAPI,TOTAL BERMALAM,JUMLAH UANG BERMALAM\n";
+            document.querySelectorAll('#tabelRekap tbody tr').forEach(row => {
+                const cells = row.querySelectorAll('td');
+                let rowData = [];
+                cells.forEach(cell => rowData.push(cell.textContent.trim()));
+                csv += rowData.join(',') + '\n';
+            });
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Rekap_Bermalam_${bulanRekap.selectedOptions[0].text}.csv`;
+            a.click();
+        }
+
+        // Search
+        searchInput.addEventListener('input', () => {
+            const filter = searchInput.value.toLowerCase();
+            document.querySelectorAll('#tabelLaporan tbody tr').forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(filter) ? '' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>
