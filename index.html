@@ -106,6 +106,7 @@
                     <th>CABANG DIINAPI</th>
                     <th>TOTAL BERMALAM</th>
                     <th>JUMLAH UANG BERMALAM</th>
+                    <th>TOTAL BERMALAM KARYAWAN</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -325,7 +326,7 @@ const firebaseConfig = {
         function updateRekap() {
             const filter = bulanRekap.value;
             if (!filter) {
-                rekapBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#666;">Pilih bulan untuk melihat rekap</td></tr>';
+                rekapBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#666;">Pilih bulan untuk melihat rekap</td></tr>';
                 totalSummary.textContent = '';
                 return;
             }
@@ -359,6 +360,8 @@ const firebaseConfig = {
 
             sortedNama.forEach(nama => {
                 const entries = Object.values(group).filter(g => g.nama === nama);
+                const totalKaryawan = totalPerNama[nama];
+                
                 entries.forEach((entry, idx) => {
                     const tanggalList = entry.tanggal.sort((a, b) => Number(a) - Number(b)).join(', ');
                     const tanggalStr = idx === 0 ? tanggalList + ' ' + bulanNama : tanggalList;
@@ -395,6 +398,15 @@ const firebaseConfig = {
                     const tdUang = document.createElement('td');
                     tdUang.textContent = 'Rp ' + uang.toLocaleString('id-ID');
                     row.appendChild(tdUang);
+
+                    if (idx === 0) {
+                        const tdTotalKaryawan = document.createElement('td');
+                        tdTotalKaryawan.rowSpan = entries.length;
+                        tdTotalKaryawan.textContent = totalKaryawan + ' malam';
+                        tdTotalKaryawan.style.fontWeight = 'bold';
+                        tdTotalKaryawan.style.background = '#fff3cd';
+                        row.appendChild(tdTotalKaryawan);
+                    }
 
                     rekapBody.appendChild(row);
 
@@ -436,12 +448,14 @@ const firebaseConfig = {
 
             const sortedNama = Object.keys(totalPerNama).sort((a, b) => totalPerNama[b] - totalPerNama[a]);
 
-            let csv = "NO,NAMA KARYAWAN,TANGGAL BERMALAM,CABANG DIINAPI,TOTAL BERMALAM,JUMLAH UANG BERMALAM\n";
+            let csv = "NO,NAMA KARYAWAN,TANGGAL BERMALAM,CABANG DIINAPI,TOTAL BERMALAM,JUMLAH UANG BERMALAM,TOTAL BERMALAM KARYAWAN\n";
             let no = 1;
             const BIAYA = 30000;
 
             sortedNama.forEach(nama => {
                 const entries = Object.values(group).filter(g => g.nama === nama);
+                const totalKaryawan = totalPerNama[nama];
+                
                 entries.forEach((entry, idx) => {
                     const tanggalList = entry.tanggal.sort((a, b) => Number(a) - Number(b)).join(', ');
                     const tanggalStr = idx === 0 ? tanggalList + ' ' + bulanNama : tanggalList;
@@ -449,9 +463,9 @@ const firebaseConfig = {
                     const uang = totalMalam * BIAYA;
 
                     if (idx === 0) {
-                        csv += `${no},"${nama}","${tanggalStr}","${entry.cabang}","${totalMalam} x","Rp ${uang.toLocaleString('id-ID')}"\n`;
+                        csv += `${no},"${nama}","${tanggalStr}","${entry.cabang}","${totalMalam} x","Rp ${uang.toLocaleString('id-ID')}","${totalKaryawan} malam"\n`;
                     } else {
-                        csv += `,"","${tanggalStr}","${entry.cabang}","${totalMalam} x","Rp ${uang.toLocaleString('id-ID')}"\n`;
+                        csv += `,"","${tanggalStr}","${entry.cabang}","${totalMalam} x","Rp ${uang.toLocaleString('id-ID')}",""\n`;
                     }
                 });
                 no++;
@@ -468,4 +482,3 @@ const firebaseConfig = {
     </script>
 </body>
 </html>
-
