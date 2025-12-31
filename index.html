@@ -194,7 +194,7 @@ const firebaseConfig = {
             const data = snapshot.val();
             if (data) Object.values(data).forEach(val => allData.push(val));
             renderLaporan();
-            updateBulanFilter(); // Diperbaiki agar opsi bulan selalu muncul
+            updateBulanFilter();
             if (document.getElementById('Rekap').style.display === 'block') updateRekap();
         });
 
@@ -202,7 +202,8 @@ const firebaseConfig = {
             tabelBody.innerHTML = allData.length === 0 ? '<tr><td colspan="7" style="text-align:center; color:#666;">Belum ada laporan</td></tr>' : '';
             allData.sort((a, b) => b.timestamp - a.timestamp).forEach((val, i) => {
                 const waktu = new Date(val.timestamp).toLocaleString('id-ID');
-                tabelBody.innerHTML += `<tr>
+                const row = document.createElement('tr');
+                row.innerHTML = `
                     <td>${i + 1}</td>
                     <td>${waktu}</td>
                     <td>${val.tanggal}</td>
@@ -210,44 +211,189 @@ const firebaseConfig = {
                     <td>${val.nama}</td>
                     <td>${val.cabang}</td>
                     <td>${val.alasanTelat || '-'}</td>
-                </tr>`;
+                `;
+                tabelBody.appendChild(row);
             });
         }
 
-        // Perbaikan utama: Dropdown bulan sekarang pasti terisi
         function updateBulanFilter() {
-            const bulanMap = {};
+            const bulanList = [];
+            const seen = new Set();
             allData.forEach(d => {
                 const date = new Date(d.tanggal);
-                const year = date.getFullYear();
-                const month = date.getMonth();
-                const key = `\( {year}- \){month}`;
-                if (!bulanMap[key]) {
-                    bulanMap[key] = new Date(year, month).toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+                const yearMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                if (!seen.has(yearMonth)) {
+                    seen.add(yearMonth);
+                    const namaBulan = date.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+                    bulanList.push({key: yearMonth, name: namaBulan});
                 }
             });
 
             bulanRekap.innerHTML = '<option value="">Pilih Bulan Rekap</option>';
-            Object.keys(bulanMap).sort((a, b) => b.localeCompare(a)).forEach(key => {
-                bulanRekap.innerHTML += `<option value="\( {key}"> \){bulanMap[key]}</option>`;
+            bulanList.sort((a, b) => b.key.localeCompare(a.key)).forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item.key;
+                opt.textContent = item.name;
+                bulanRekap.appendChild(opt);
             });
 
-            // Auto select bulan terbaru jika ada data
-            if (Object.keys(bulanMap).length > 0) {
-                bulanRekap.value = Object.keys(bulanMap).sort((a, b) => b.localeCompare(a))[0];
-                updateRekap(); // Auto update rekap saat tab dibuka
+            if (bulanList.length > 0) {
+                bulanRekap.value = bulanList[0].key;
+                updateRekap();
             }
         }
 
-        // Rekap dan export tetap sama (sudah benar)
         function updateRekap() {
-            // ... (kode rekap sama seperti versi sebelumnya yang sudah benar, dengan createElement untuk rowspan)
-            // Untuk singkat, gunakan kode rekap dari versi sebelumnya yang menggunakan createElement untuk menghindari error rowspan
-            // (sama seperti respons sebelumnya)
+            const filter = bulanRekap.value;
+            if (!filter) {
+                rekapBody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#666;">Pilih bulan untuk melihat rekap</td></tr>';
+                totalSummary.textContent = '';
+                return;
+            }
+
+            const [tahun, bulan] = filter.split('-').map(Number);
+            const bulanNama = new Date(tahun, bulan - 1).toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+            const filtered = allData.filter(d => {
+                const tgl = new Date(d.tanggal);
+                return tgl.getFullYear() === tahun && tgl.getMonth() + 1 === bulan;
+            });
+
+            const group = {};
+            filtered.forEach(d => {
+                const key = `${d.nama}|${d.cabang}`;
+                if (!group[key]) group[key] = { nama: d.nama, cabang: d.cabang, tanggal: [] };
+                group[key].tanggal.push(d.tanggal.split('-')[2]);
+            });
+
+            const totalPerNama = {};
+            Object.values(group).forEach(g => {
+                totalPerNama[g.nama] = (totalPerNama[g.nama] || 0) + g.tanggal.length;
+            });
+
+            const sortedNama = Object.keys(totalPerNama).sort((a, b) => totalPerNama[b] - totalPerNama[a]);
+
+            rekapBody.innerHTML = '';
+            let no = 1;
+            let grandTotalMalam = 0;
+            let grandTotalUang = 0;
+            const BIAYA = 30000;
+
+            sortedNama.forEach(nama => {
+                const entries = Object.values(group).filter(g => g.nama === nama);
+                entries.forEach((entry, idx) => {
+                    const tanggalList = entry.tanggal.sort((a, b) => Number(a) - Number(b)).join(', ');
+                    const tanggalStr = idx === 0 ? tanggalList + ' ' + bulanNama : tanggalList;
+                    const totalMalam = entry.tanggal.length;
+                    const uang = totalMalam * BIAYA;
+
+                    const row = document.createElement('tr');
+                    if (idx > 0) row.classList.add('multi-row');
+
+                    if (idx === 0) {
+                        const tdNo = document.createElement('td');
+                        tdNo.rowSpan = entries.length;
+                        tdNo.textContent = no;
+                        row.appendChild(tdNo);
+
+                        const tdNama = document.createElement('td');
+                        tdNama.rowSpan = entries.length;
+                        tdNama.textContent = nama;
+                        row.appendChild(tdNama);
+                    }
+
+                    const tdTanggal = document.createElement('td');
+                    tdTanggal.textContent = tanggalStr;
+                    row.appendChild(tdTanggal);
+
+                    const tdCabang = document.createElement('td');
+                    tdCabang.textContent = entry.cabang;
+                    row.appendChild(tdCabang);
+
+                    const tdTotal = document.createElement('td');
+                    tdTotal.textContent = totalMalam + ' x';
+                    row.appendChild(tdTotal);
+
+                    const tdUang = document.createElement('td');
+                    tdUang.textContent = 'Rp ' + uang.toLocaleString('id-ID');
+                    row.appendChild(tdUang);
+
+                    rekapBody.appendChild(row);
+
+                    grandTotalMalam += totalMalam;
+                    grandTotalUang += uang;
+                });
+                no++;
+            });
+
+            totalSummary.textContent = `Total Bermalam: ${grandTotalMalam} malam | Total Uang Bermalam: Rp ${grandTotalUang.toLocaleString('id-ID')}`;
         }
 
-        // Export dan search sama
+        function exportRekapCSV() {
+            if (!bulanRekap.value) {
+                alert('Pilih bulan dulu!');
+                return;
+            }
+            
+            const filter = bulanRekap.value;
+            const [tahun, bulan] = filter.split('-').map(Number);
+            const bulanNama = new Date(tahun, bulan - 1).toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+            
+            const filtered = allData.filter(d => {
+                const tgl = new Date(d.tanggal);
+                return tgl.getFullYear() === tahun && tgl.getMonth() + 1 === bulan;
+            });
 
+            const group = {};
+            filtered.forEach(d => {
+                const key = `${d.nama}|${d.cabang}`;
+                if (!group[key]) group[key] = { nama: d.nama, cabang: d.cabang, tanggal: [] };
+                group[key].tanggal.push(d.tanggal.split('-')[2]);
+            });
+
+            const totalPerNama = {};
+            Object.values(group).forEach(g => {
+                totalPerNama[g.nama] = (totalPerNama[g.nama] || 0) + g.tanggal.length;
+            });
+
+            const sortedNama = Object.keys(totalPerNama).sort((a, b) => totalPerNama[b] - totalPerNama[a]);
+
+            let csv = "NO,NAMA KARYAWAN,TANGGAL BERMALAM,CABANG DIINAPI,TOTAL BERMALAM,JUMLAH UANG BERMALAM\n";
+            let no = 1;
+            const BIAYA = 30000;
+
+            sortedNama.forEach(nama => {
+                const entries = Object.values(group).filter(g => g.nama === nama);
+                entries.forEach((entry, idx) => {
+                    const tanggalList = entry.tanggal.sort((a, b) => Number(a) - Number(b)).join(', ');
+                    const tanggalStr = idx === 0 ? tanggalList + ' ' + bulanNama : tanggalList;
+                    const totalMalam = entry.tanggal.length;
+                    const uang = totalMalam * BIAYA;
+
+                    if (idx === 0) {
+                        csv += `${no},"${nama}","${tanggalStr}","${entry.cabang}","${totalMalam} x","Rp ${uang.toLocaleString('id-ID')}"\n`;
+                    } else {
+                        csv += `,"","${tanggalStr}","${entry.cabang}","${totalMalam} x","Rp ${uang.toLocaleString('id-ID')}"\n`;
+                    }
+                });
+                no++;
+            });
+
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Rekap_Bermalam_${bulanNama.replace(/ /g, '_')}.csv`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        searchInput.addEventListener('input', () => {
+            const filter = searchInput.value.toLowerCase();
+            document.querySelectorAll('#tabelLaporan tbody tr').forEach(row => {
+                const text = row.textContent.toLowerCase();
+                row.style.display = text.includes(filter) ? '' : 'none';
+            });
+        });
     </script>
 </body>
 </html>
