@@ -54,8 +54,9 @@
             <label>Tanggal Bermalam</label>
             <input type="date" id="tanggal" required>
 
-            <label>Jam Datang</label>
-            <input type="time" id="jamDatang" required>
+            <label>Jam Datang (Otomatis)</label>
+            <input type="time" id="jamDatang" required readonly style="background: #e9ecef; cursor: not-allowed;">
+            <button type="button" id="ambilJam" style="background: #17a2b8; margin-top: 10px; width: 100%;">🕐 Ambil Jam Sekarang</button>
 
             <div id="alasanContainer">
                 <label>Alasan Telat (wajib jika > 22:30)</label>
@@ -66,7 +67,16 @@
         </form>
 
         <h2>Daftar Laporan Terbaru</h2>
-        <input type="text" id="searchInput" class="search-input" placeholder="Cari nama, cabang, atau alasan...">
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <select id="filterHari" class="filter-select" style="width: 200px; margin: 0;">
+                <option value="semua">Semua Hari</option>
+                <option value="hari-ini">Hari Ini</option>
+                <option value="kemarin">Kemarin</option>
+                <option value="7-hari">7 Hari Terakhir</option>
+                <option value="30-hari">30 Hari Terakhir</option>
+            </select>
+            <input type="text" id="searchInput" class="search-input" style="margin: 0; flex: 1;" placeholder="Cari nama, cabang, atau alasan...">
+        </div>
         <table id="tabelLaporan">
             <thead>
                 <tr>
@@ -110,16 +120,15 @@
 
     <script>
         // GANTI DENGAN CONFIG FIREBASE ANDA
-const firebaseConfig = {
-  apiKey: "AIzaSyBthcmgxb-S7AOqhQEkRl4gA2tGtc373DE",
-  authDomain: "laporan-bermalam.firebaseapp.com",
-  databaseURL: "https://laporan-bermalam-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "laporan-bermalam",
-  storageBucket: "laporan-bermalam.firebasestorage.app",
-  messagingSenderId: "999268337318",
-  appId: "1:999268337318:web:ca06ca521b49347bce9667",
-  measurementId: "G-NPZ94WSPXX"
-};
+        const firebaseConfig = {
+          apiKey: "AIzaSyXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+          authDomain: "namaproyek.firebaseapp.com",
+          databaseURL: "https://namaproyek-default-rtdb.asia-southeast1.firebasedatabase.app",
+          projectId: "namaproyek",
+          storageBucket: "namaproyek.appspot.com",
+          messagingSenderId: "1234567890",
+          appId: "1:1234567890:web:abcdef1234567890"
+        };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -134,9 +143,36 @@ const firebaseConfig = {
         const bulanRekap = document.getElementById('bulanRekap');
         const totalSummary = document.getElementById('totalSummary');
         const searchInput = document.getElementById('searchInput');
+        const filterHari = document.getElementById('filterHari');
+        const ambilJamBtn = document.getElementById('ambilJam');
         let allData = [];
+        let filteredData = [];
 
         document.getElementById('tanggal').valueAsDate = new Date();
+
+        // Fungsi untuk mengambil jam realtime
+        function ambilJamRealtime() {
+            const now = new Date();
+            const jam = String(now.getHours()).padStart(2, '0');
+            const menit = String(now.getMinutes()).padStart(2, '0');
+            jamDatang.value = `${jam}:${menit}`;
+            
+            // Cek apakah perlu alasan telat
+            if (jamDatang.value > '22:30') {
+                alasanContainer.style.display = 'block';
+                alasanTelat.required = true;
+            } else {
+                alasanContainer.style.display = 'none';
+                alasanTelat.required = false;
+                alasanTelat.value = '';
+            }
+        }
+
+        // Tombol ambil jam
+        ambilJamBtn.addEventListener('click', ambilJamRealtime);
+
+        // Auto ambil jam saat halaman load
+        ambilJamRealtime();
 
         jamDatang.addEventListener('change', () => {
             if (jamDatang.value > '22:30') {
@@ -193,14 +229,56 @@ const firebaseConfig = {
             allData = [];
             const data = snapshot.val();
             if (data) Object.values(data).forEach(val => allData.push(val));
-            renderLaporan();
+            applyFilters();
             updateBulanFilter();
             if (document.getElementById('Rekap').style.display === 'block') updateRekap();
         });
 
+        // Filter berdasarkan hari
+        function applyFilters() {
+            const filterValue = filterHari.value;
+            const searchValue = searchInput.value.toLowerCase();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Filter berdasarkan hari
+            filteredData = allData.filter(d => {
+                const tglData = new Date(d.tanggal);
+                tglData.setHours(0, 0, 0, 0);
+                
+                const diffTime = today - tglData;
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+                if (filterValue === 'hari-ini') return diffDays === 0;
+                if (filterValue === 'kemarin') return diffDays === 1;
+                if (filterValue === '7-hari') return diffDays >= 0 && diffDays < 7;
+                if (filterValue === '30-hari') return diffDays >= 0 && diffDays < 30;
+                return true; // semua
+            });
+
+            // Filter berdasarkan pencarian
+            if (searchValue) {
+                filteredData = filteredData.filter(d => {
+                    const text = `${d.nama} ${d.cabang} ${d.alasanTelat || ''}`.toLowerCase();
+                    return text.includes(searchValue);
+                });
+            }
+
+            renderLaporan();
+        }
+
+        filterHari.addEventListener('change', applyFilters);
+        searchInput.addEventListener('input', applyFilters);
+
         function renderLaporan() {
-            tabelBody.innerHTML = allData.length === 0 ? '<tr><td colspan="7" style="text-align:center; color:#666;">Belum ada laporan</td></tr>' : '';
-            allData.sort((a, b) => b.timestamp - a.timestamp).forEach((val, i) => {
+            tabelBody.innerHTML = '';
+            
+            if (filteredData.length === 0) {
+                tabelBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#666;">Tidak ada laporan ditemukan</td></tr>';
+                return;
+            }
+
+            filteredData.sort((a, b) => b.timestamp - a.timestamp).forEach((val, i) => {
                 const waktu = new Date(val.timestamp).toLocaleString('id-ID');
                 const row = document.createElement('tr');
                 row.innerHTML = `
@@ -386,14 +464,6 @@ const firebaseConfig = {
             a.click();
             URL.revokeObjectURL(url);
         }
-
-        searchInput.addEventListener('input', () => {
-            const filter = searchInput.value.toLowerCase();
-            document.querySelectorAll('#tabelLaporan tbody tr').forEach(row => {
-                const text = row.textContent.toLowerCase();
-                row.style.display = text.includes(filter) ? '' : 'none';
-            });
-        });
     </script>
 </body>
 </html>
