@@ -5,123 +5,341 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rekap Karyawan Bermalam</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f6f9; padding: 20px; max-width: 1200px; margin: auto; }
-        h1 { text-align: center; color: #333; }
-        .tabs { overflow: hidden; border-bottom: 2px solid #007bff; margin-bottom: 30px; }
-        .tablink { background: #f1f1f1; float: left; border: none; outline: none; cursor: pointer; padding: 14px 20px; font-size: 17px; width: 50%; }
-        .tablink:hover { background: #ddd; }
-        .tablink.active { background: #007bff; color: white; }
-        .tabcontent { display: none; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        form { padding: 25px; margin-bottom: 30px; background: #f9f9f9; border-radius: 8px; }
-        label { display: block; margin: 15px 0 5px; font-weight: bold; color: #444; }
-        input, select { padding: 12px; width: 100%; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
-        button { background: #28a745; color: white; padding: 12px 20px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
+        :root {
+            --bg-primary: #f4f6f9;
+            --bg-secondary: white;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-color: #eee;
+            --header-bg: #007bff;
+            --input-bg: white;
+            --input-border: #ccc;
+        }
+
+        .dark-mode {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border-color: #444;
+            --header-bg: #0056b3;
+            --input-bg: #3a3a3a;
+            --input-border: #555;
+        }
+
+        body { 
+            font-family: Arial, sans-serif; 
+            background: var(--bg-primary); 
+            padding: 20px; 
+            max-width: 1200px; 
+            margin: auto; 
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+        
+        .auth-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 40px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .auth-container h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--text-primary);
+        }
+        
+        .auth-toggle {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text-secondary);
+        }
+        
+        .auth-toggle a {
+            color: #007bff;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        
+        .user-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .user-info span {
+            font-weight: bold;
+            color: var(--text-primary);
+        }
+        
+        .btn-logout {
+            background: #dc3545;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .btn-logout:hover {
+            background: #c82333;
+        }
+        
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 24px;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .theme-toggle:hover {
+            transform: scale(1.1);
+            transition: transform 0.2s;
+        }
+        
+        h1 { text-align: center; color: var(--text-primary); }
+        .tabs { overflow: hidden; border-bottom: 2px solid var(--header-bg); margin-bottom: 30px; }
+        .tablink { 
+            background: var(--bg-secondary); 
+            float: left; 
+            border: none; 
+            outline: none; 
+            cursor: pointer; 
+            padding: 14px 20px; 
+            font-size: 17px; 
+            width: 50%; 
+            color: var(--text-primary);
+        }
+        .tablink:hover { background: var(--input-bg); }
+        .tablink.active { background: var(--header-bg); color: white; }
+        .tabcontent { 
+            display: none; 
+            padding: 20px; 
+            background: var(--bg-secondary); 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
+        form { padding: 25px; margin-bottom: 30px; background: var(--input-bg); border-radius: 8px; }
+        label { 
+            display: block; 
+            margin: 15px 0 5px; 
+            font-weight: bold; 
+            color: var(--text-primary); 
+        }
+        input, select { 
+            padding: 12px; 
+            width: 100%; 
+            border: 1px solid var(--input-border); 
+            border-radius: 6px; 
+            font-size: 16px; 
+            box-sizing: border-box; 
+            background: var(--input-bg);
+            color: var(--text-primary);
+        }
+        button { 
+            background: #28a745; 
+            color: white; 
+            padding: 12px 20px; 
+            border: none; 
+            border-radius: 6px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            width: 100%;
+        }
         button:hover { background: #218838; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }
-        th { background: #007bff; color: white; }
-        tr:hover { background: #f8f9fa; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+            background: var(--bg-secondary);
+        }
+        th, td { 
+            padding: 12px; 
+            text-align: left; 
+            border-bottom: 1px solid var(--border-color); 
+            vertical-align: top; 
+            color: var(--text-primary);
+        }
+        th { background: var(--header-bg); color: white; }
+        tr:hover { background: var(--input-bg); }
         .search-input { margin: 15px 0; padding: 10px; width: 100%; }
         .export-btn { background: #ffc107; color: #333; margin: 20px 0; padding: 12px; width: 100%; font-size: 16px; }
         .export-btn:hover { background: #e0a800; }
-        .total-summary { font-weight: bold; font-size: 1.3em; text-align: right; margin: 30px 0; background: #e9ecef; padding: 20px; border-radius: 8px; }
+        .total-summary { 
+            font-weight: bold; 
+            font-size: 1.3em; 
+            text-align: right; 
+            margin: 30px 0; 
+            background: var(--input-bg); 
+            padding: 20px; 
+            border-radius: 8px; 
+            color: var(--text-primary);
+        }
         .filter-select { padding: 12px; margin-bottom: 20px; width: 100%; font-size: 16px; }
         #alasanContainer { display: none; margin-top: 15px; }
         .multi-row { background: #f0f8ff; }
+        .dark-mode .multi-row { background: #1e3a5f; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
-    <h1>Rekap Karyawan Bermalam</h1>
-
-    <div class="tabs">
-        <button class="tablink active" onclick="openTab(event, 'Input')">Input Laporan</button>
-        <button class="tablink" onclick="openTab(event, 'Rekap')">Rekap Bulanan</button>
+    <div class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">
+        <span id="themeIcon">🌙</span>
     </div>
 
-    <div id="Input" class="tabcontent" style="display: block;">
-        <form id="laporanForm">
-            <label>Nama Karyawan</label>
-            <input type="text" id="nama" required placeholder="Masukkan nama karyawan">
-
-            <label>Cabang Diinapi</label>
-            <select id="cabang" required>
-                <option value="Twincom Banjarbaru">Twincom Banjarbaru</option>
-                <option value="Twincom Martapura">Twincom Martapura</option>
-                <option value="Twincom A. Yani">Twincom A. Yani</option>
-                <option value="Pandacom Banjarbaru">Pandacom Banjarbaru</option>
-            </select>
-
-            <label>Tanggal Bermalam</label>
-            <input type="date" id="tanggal" required>
-
-            <label>Jam Datang (Otomatis)</label>
-            <input type="time" id="jamDatang" required readonly style="background: #e9ecef; cursor: not-allowed;">
-            <button type="button" id="ambilJam" style="background: #17a2b8; margin-top: 10px; width: 100%;">🕐 Ambil Jam Sekarang</button>
-
-            <div id="alasanContainer">
-                <label>Alasan Telat (wajib jika > 22:30)</label>
-                <input type="text" id="alasanTelat" placeholder="Tuliskan alasan keterlambatan">
+    <!-- Login/Register Page -->
+    <div id="authPage" class="auth-container">
+        <div id="loginForm">
+            <h2>🔐 Login</h2>
+            <form id="loginFormElement">
+                <label>Email</label>
+                <input type="email" id="loginEmail" required placeholder="email@example.com">
+                
+                <label>Password</label>
+                <input type="password" id="loginPassword" required placeholder="Password">
+                
+                <button type="submit" style="margin-top: 20px;">Login</button>
+            </form>
+            <div class="auth-toggle">
+                Belum punya akun? <a onclick="showRegister()">Daftar di sini</a>
             </div>
-
-            <button type="submit">Tambah Laporan</button>
-        </form>
-
-        <h2>Daftar Laporan Terbaru</h2>
-        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <select id="filterHari" class="filter-select" style="width: 200px; margin: 0;">
-                <option value="semua">Semua Hari</option>
-                <option value="hari-ini">Hari Ini</option>
-                <option value="kemarin">Kemarin</option>
-                <option value="7-hari">7 Hari Terakhir</option>
-                <option value="30-hari">30 Hari Terakhir</option>
-            </select>
-            <input type="text" id="searchInput" class="search-input" style="margin: 0; flex: 1;" placeholder="Cari nama, cabang, atau alasan...">
         </div>
-        <table id="tabelLaporan">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Waktu Input</th>
-                    <th>Tanggal</th>
-                    <th>Jam Datang</th>
-                    <th>Nama</th>
-                    <th>Cabang</th>
-                    <th>Alasan Telat</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+
+        <div id="registerForm" class="hidden">
+            <h2>📝 Daftar Akun</h2>
+            <form id="registerFormElement">
+                <label>Nama Lengkap</label>
+                <input type="text" id="regNama" required placeholder="Nama lengkap Anda">
+                
+                <label>Email</label>
+                <input type="email" id="regEmail" required placeholder="email@example.com">
+                
+                <label>Password</label>
+                <input type="password" id="regPassword" required placeholder="Minimal 6 karakter">
+                
+                <button type="submit" style="margin-top: 20px;">Daftar</button>
+            </form>
+            <div class="auth-toggle">
+                Sudah punya akun? <a onclick="showLogin()">Login di sini</a>
+            </div>
+        </div>
     </div>
 
-    <div id="Rekap" class="tabcontent">
-        <h2>Rekap Karyawan Bermalam Bulanan</h2>
-        <select id="bulanRekap" class="filter-select" onchange="updateRekap()"></select>
+    <!-- Main App -->
+    <div id="mainApp" class="hidden">
+        <div class="user-info">
+            <span>👤 <span id="displayUserName"></span></span>
+            <button class="btn-logout" onclick="logout()">Logout</button>
+        </div>
 
-        <table id="tabelRekap">
-            <thead>
-                <tr>
-                    <th>NO</th>
-                    <th>NAMA KARYAWAN</th>
-                    <th>TANGGAL BERMALAM</th>
-                    <th>CABANG DIINAPI</th>
-                    <th>TOTAL BERMALAM</th>
-                    <th>JUMLAH UANG BERMALAM</th>
-                    <th>TOTAL BERMALAM KARYAWAN</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
+        <h1>Rekap Karyawan Bermalam</h1>
 
-        <div class="total-summary" id="totalSummary"></div>
-        <button class="export-btn" onclick="exportRekapExcel()">📊 Export Rekap ke Excel (.xlsx)</button>
+        <div class="tabs">
+            <button class="tablink active" onclick="openTab(event, 'Input')">Input Laporan</button>
+            <button class="tablink" onclick="openTab(event, 'Rekap')">Rekap Bulanan</button>
+        </div>
+
+        <div id="Input" class="tabcontent" style="display: block;">
+            <form id="laporanForm">
+                <label>Cabang Diinapi</label>
+                <select id="cabang" required>
+                    <option value="Twincom Banjarbaru">Twincom Banjarbaru</option>
+                    <option value="Twincom Martapura">Twincom Martapura</option>
+                    <option value="Twincom A. Yani">Twincom A. Yani</option>
+                    <option value="Pandacom Banjarbaru">Pandacom Banjarbaru</option>
+                </select>
+
+                <label>Tanggal Bermalam</label>
+                <input type="date" id="tanggal" required>
+
+                <label>Jam Datang (Otomatis)</label>
+                <input type="time" id="jamDatang" required readonly style="background: var(--input-bg); cursor: not-allowed;">
+                <button type="button" id="ambilJam" style="background: #17a2b8; margin-top: 10px; width: 100%;">🕐 Ambil Jam Sekarang</button>
+
+                <div id="alasanContainer">
+                    <label>Alasan Telat (wajib jika > 22:30)</label>
+                    <input type="text" id="alasanTelat" placeholder="Tuliskan alasan keterlambatan">
+                </div>
+
+                <button type="submit" style="margin-top: 15px;">Tambah Laporan</button>
+            </form>
+
+            <h2>Daftar Laporan Terbaru</h2>
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <select id="filterHari" class="filter-select" style="width: 200px; margin: 0;">
+                    <option value="semua">Semua Hari</option>
+                    <option value="hari-ini">Hari Ini</option>
+                    <option value="kemarin">Kemarin</option>
+                    <option value="7-hari">7 Hari Terakhir</option>
+                    <option value="30-hari">30 Hari Terakhir</option>
+                </select>
+                <input type="text" id="searchInput" class="search-input" style="margin: 0; flex: 1;" placeholder="Cari nama, cabang, atau alasan...">
+            </div>
+            <table id="tabelLaporan">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Waktu Input</th>
+                        <th>Tanggal</th>
+                        <th>Jam Datang</th>
+                        <th>Nama</th>
+                        <th>Cabang</th>
+                        <th>Alasan Telat</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div id="Rekap" class="tabcontent">
+            <h2>Rekap Karyawan Bermalam Bulanan</h2>
+            <select id="bulanRekap" class="filter-select" onchange="updateRekap()"></select>
+
+            <table id="tabelRekap">
+                <thead>
+                    <tr>
+                        <th>NO</th>
+                        <th>NAMA KARYAWAN</th>
+                        <th>TANGGAL BERMALAM</th>
+                        <th>CABANG DIINAPI</th>
+                        <th>TOTAL BERMALAM</th>
+                        <th>JUMLAH UANG BERMALAM</th>
+                        <th>TOTAL BERMALAM KARYAWAN</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+
+            <div class="total-summary" id="totalSummary"></div>
+            <button class="export-btn" onclick="exportRekapExcel()">📊 Export Rekap ke Excel (.xlsx)</button>
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <script>
-        // GANTI DENGAN CONFIG FIREBASE ANDA
 const firebaseConfig = {
   apiKey: "AIzaSyBthcmgxb-S7AOqhQEkRl4gA2tGtc373DE",
   authDomain: "laporan-bermalam.firebaseapp.com",
@@ -132,11 +350,119 @@ const firebaseConfig = {
   appId: "1:999268337318:web:ca06ca521b49347bce9667",
   measurementId: "G-NPZ94WSPXX"
 };
-
         firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
         const db = firebase.database();
         const refLaporan = db.ref('laporan');
+        const refUsers = db.ref('users');
 
+        let currentUser = null;
+        let allData = [];
+        let filteredData = [];
+
+        // Theme Management
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            const isDark = document.body.classList.contains('dark-mode');
+            document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
+            localStorage.setItem('darkMode', isDark);
+        }
+
+        // Load theme preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('themeIcon').textContent = '☀️';
+        }
+
+        // Auth State Observer
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                refUsers.child(user.uid).once('value', snapshot => {
+                    const userData = snapshot.val();
+                    if (userData) {
+                        currentUser = {
+                            uid: user.uid,
+                            email: user.email,
+                            nama: userData.nama
+                        };
+                        showMainApp();
+                    }
+                });
+            } else {
+                showAuthPage();
+            }
+        });
+
+        // Show/Hide Pages
+        function showAuthPage() {
+            document.getElementById('authPage').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+        }
+
+        function showMainApp() {
+            document.getElementById('authPage').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.getElementById('displayUserName').textContent = currentUser.nama;
+            document.getElementById('tanggal').valueAsDate = new Date();
+            ambilJamRealtime();
+        }
+
+        function showLogin() {
+            document.getElementById('loginForm').classList.remove('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+        }
+
+        function showRegister() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+        }
+
+        // Register
+        document.getElementById('registerFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const nama = document.getElementById('regNama').value.trim().toUpperCase();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+
+            if (password.length < 6) {
+                alert('Password minimal 6 karakter!');
+                return;
+            }
+
+            try {
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                await refUsers.child(userCredential.user.uid).set({
+                    nama: nama,
+                    email: email,
+                    createdAt: Date.now()
+                });
+                alert('Akun berhasil dibuat!');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Login
+        document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                await auth.signInWithEmailAndPassword(email, password);
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+
+        // Logout
+        function logout() {
+            if (confirm('Yakin ingin logout?')) {
+                auth.signOut();
+            }
+        }
+
+        // Form Elements
         const form = document.getElementById('laporanForm');
         const jamDatang = document.getElementById('jamDatang');
         const alasanContainer = document.getElementById('alasanContainer');
@@ -148,19 +474,13 @@ const firebaseConfig = {
         const searchInput = document.getElementById('searchInput');
         const filterHari = document.getElementById('filterHari');
         const ambilJamBtn = document.getElementById('ambilJam');
-        let allData = [];
-        let filteredData = [];
 
-        document.getElementById('tanggal').valueAsDate = new Date();
-
-        // Fungsi untuk mengambil jam realtime
         function ambilJamRealtime() {
             const now = new Date();
             const jam = String(now.getHours()).padStart(2, '0');
             const menit = String(now.getMinutes()).padStart(2, '0');
             jamDatang.value = `${jam}:${menit}`;
             
-            // Cek apakah perlu alasan telat
             if (jamDatang.value > '22:30') {
                 alasanContainer.style.display = 'block';
                 alasanTelat.required = true;
@@ -171,11 +491,7 @@ const firebaseConfig = {
             }
         }
 
-        // Tombol ambil jam
         ambilJamBtn.addEventListener('click', ambilJamRealtime);
-
-        // Auto ambil jam saat halaman load
-        ambilJamRealtime();
 
         jamDatang.addEventListener('change', () => {
             if (jamDatang.value > '22:30') {
@@ -198,13 +514,17 @@ const firebaseConfig = {
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
-            const nama = document.getElementById('nama').value.trim().toUpperCase();
+            if (!currentUser) {
+                alert('Anda harus login terlebih dahulu!');
+                return;
+            }
+
             const cabang = document.getElementById('cabang').value;
             const tanggal = document.getElementById('tanggal').value;
             const jam = jamDatang.value;
             const alasan = jam > '22:30' ? alasanTelat.value.trim() : '';
 
-            if (!nama || !cabang || !tanggal || !jam) {
+            if (!cabang || !tanggal || !jam) {
                 alert('Semua field wajib diisi!');
                 return;
             }
@@ -214,7 +534,8 @@ const firebaseConfig = {
             }
 
             refLaporan.push({
-                nama,
+                nama: currentUser.nama,
+                userId: currentUser.uid,
                 cabang,
                 tanggal,
                 jamDatang: jam,
@@ -226,6 +547,7 @@ const firebaseConfig = {
             form.reset();
             document.getElementById('tanggal').valueAsDate = new Date();
             alasanContainer.style.display = 'none';
+            ambilJamRealtime();
         });
 
         refLaporan.on('value', (snapshot) => {
@@ -237,14 +559,12 @@ const firebaseConfig = {
             if (document.getElementById('Rekap').style.display === 'block') updateRekap();
         });
 
-        // Filter berdasarkan hari
         function applyFilters() {
             const filterValue = filterHari.value;
             const searchValue = searchInput.value.toLowerCase();
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            // Filter berdasarkan hari
             filteredData = allData.filter(d => {
                 const tglData = new Date(d.tanggal);
                 tglData.setHours(0, 0, 0, 0);
@@ -256,10 +576,9 @@ const firebaseConfig = {
                 if (filterValue === 'kemarin') return diffDays === 1;
                 if (filterValue === '7-hari') return diffDays >= 0 && diffDays < 7;
                 if (filterValue === '30-hari') return diffDays >= 0 && diffDays < 30;
-                return true; // semua
+                return true;
             });
 
-            // Filter berdasarkan pencarian
             if (searchValue) {
                 filteredData = filteredData.filter(d => {
                     const text = `${d.nama} ${d.cabang} ${d.alasanTelat || ''}`.toLowerCase();
@@ -277,7 +596,7 @@ const firebaseConfig = {
             tabelBody.innerHTML = '';
             
             if (filteredData.length === 0) {
-                tabelBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#666;">Tidak ada laporan ditemukan</td></tr>';
+                tabelBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-secondary);">Tidak ada laporan ditemukan</td></tr>';
                 return;
             }
 
@@ -327,7 +646,7 @@ const firebaseConfig = {
         function updateRekap() {
             const filter = bulanRekap.value;
             if (!filter) {
-                rekapBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#666;">Pilih bulan untuk melihat rekap</td></tr>';
+                rekapBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-secondary);">Pilih bulan untuk melihat rekap</td></tr>';
                 totalSummary.textContent = '';
                 return;
             }
@@ -449,24 +768,17 @@ const firebaseConfig = {
 
             const sortedNama = Object.keys(totalPerNama).sort((a, b) => totalPerNama[b] - totalPerNama[a]);
 
-            // Buat workbook dan worksheet
             const wb = XLSX.utils.book_new();
             const wsData = [];
 
-            // Header dengan judul
             wsData.push([`REKAP KARYAWAN BERMALAM BULAN ${bulanNama}`]);
             wsData.push(['NO', 'NAMA KARYAWAN', 'TANGGAL BERMALAM', 'CABANG DIINAPI', 'TOTAL BERMALAM', 'JUMLAH UANG BERMALAM']);
 
             let no = 1;
             const BIAYA = 30000;
-            let startRow = 2; // Mulai dari baris ke-3 (index 2)
 
             sortedNama.forEach(nama => {
                 const entries = Object.values(group).filter(g => g.nama === nama);
-                const totalKaryawan = totalPerNama[nama];
-                const totalUangKaryawan = totalKaryawan * BIAYA;
-                
-                const firstRow = wsData.length;
                 
                 entries.forEach((entry, idx) => {
                     const tanggalList = entry.tanggal.sort((a, b) => Number(a) - Number(b)).join(', ');
@@ -498,29 +810,24 @@ const firebaseConfig = {
                 no++;
             });
 
-            // Tambah footer
             wsData.push([]);
-            wsData.push(['', '', '', '', '', 'ADMIN : ']);
+            wsData.push(['', '', '', '', '', 'ADMIN : RINA']);
 
-            // Buat worksheet
             const ws = XLSX.utils.aoa_to_sheet(wsData);
 
-            // Set column widths
             ws['!cols'] = [
-                { wch: 5 },  // NO
-                { wch: 20 }, // NAMA
-                { wch: 50 }, // TANGGAL
-                { wch: 25 }, // CABANG
-                { wch: 18 }, // TOTAL
-                { wch: 25 }  // JUMLAH UANG
+                { wch: 5 },
+                { wch: 20 },
+                { wch: 50 },
+                { wch: 25 },
+                { wch: 18 },
+                { wch: 25 }
             ];
 
-            // Merge header title
             ws['!merges'] = [
                 { s: { r: 0, c: 0 }, e: { r: 0, c: 5 } }
             ];
 
-            // Style untuk header judul (baris pertama)
             const headerCell = 'A1';
             if (!ws[headerCell].s) ws[headerCell].s = {};
             ws[headerCell].s = {
@@ -529,7 +836,6 @@ const firebaseConfig = {
                 fill: { fgColor: { rgb: 'C6E0B4' } }
             };
 
-            // Style untuk header kolom (baris kedua)
             ['A2', 'B2', 'C2', 'D2', 'E2', 'F2'].forEach(cell => {
                 if (ws[cell]) {
                     ws[cell].s = {
@@ -546,7 +852,6 @@ const firebaseConfig = {
                 }
             });
 
-            // Add borders to all data cells
             const range = XLSX.utils.decode_range(ws['!ref']);
             for (let R = 2; R <= range.e.r; R++) {
                 for (let C = 0; C <= 5; C++) {
@@ -561,22 +866,17 @@ const firebaseConfig = {
                         right: { style: 'thin', color: { rgb: '000000' } }
                     };
                     
-                    // Yellow background untuk kolom NO dan NAMA
                     if (C === 0 || C === 1) {
                         ws[cellAddress].s.fill = { fgColor: { rgb: 'FFFF00' } };
                     }
                     
-                    // Blue background untuk kolom CABANG
                     if (C === 3) {
                         ws[cellAddress].s.fill = { fgColor: { rgb: 'B4C7E7' } };
                     }
                 }
             }
 
-            // Add worksheet to workbook
             XLSX.utils.book_append_sheet(wb, ws, 'Rekap Bermalam');
-
-            // Generate and download
             XLSX.writeFile(wb, `Rekap_Bermalam_${bulanNama.replace(/ /g, '_')}.xlsx`);
         }
     </script>
