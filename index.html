@@ -5,252 +5,97 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rekap Karyawan Bermalam</title>
     <style>
-        :root {
-            --bg-primary: #f4f6f9;
-            --bg-secondary: white;
-            --text-primary: #333;
-            --text-secondary: #666;
-            --border-color: #eee;
-            --header-bg: #007bff;
-            --input-bg: white;
-            --input-border: #ccc;
-        }
-
-        .dark-mode {
-            --bg-primary: #1a1a1a;
-            --bg-secondary: #2d2d2d;
-            --text-primary: #e0e0e0;
-            --text-secondary: #b0b0b0;
-            --border-color: #444;
-            --header-bg: #0056b3;
-            --input-bg: #3a3a3a;
-            --input-border: #555;
-        }
-
-        body { 
-            font-family: Arial, sans-serif; 
-            background: var(--bg-primary); 
-            padding: 20px; 
-            max-width: 1200px; 
-            margin: auto; 
-            color: var(--text-primary);
-            transition: all 0.3s ease;
-        }
-        
-        .auth-container {
-            max-width: 400px;
-            margin: 100px auto;
-            padding: 40px;
-            background: var(--bg-secondary);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        
-        .auth-container h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: var(--text-primary);
-        }
-        
-        .auth-toggle {
-            text-align: center;
-            margin-top: 20px;
-            color: var(--text-secondary);
-        }
-        
-        .auth-toggle a {
-            color: #007bff;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-        
-        .user-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background: var(--bg-secondary);
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        
-        .user-info span {
-            font-weight: bold;
-            color: var(--text-primary);
-        }
-        
-        .btn-logout {
-            background: #dc3545;
-            color: white;
-            padding: 8px 16px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        
-        .btn-logout:hover {
-            background: #c82333;
-        }
-        
-        .theme-toggle {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
-            border-radius: 50%;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 24px;
-            z-index: 1000;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        
-        .theme-toggle:hover {
-            transform: scale(1.1);
-            transition: transform 0.2s;
-        }
-        
-        h1 { text-align: center; color: var(--text-primary); }
-        .tabs { overflow: hidden; border-bottom: 2px solid var(--header-bg); margin-bottom: 30px; }
-        .tablink { 
-            background: var(--bg-secondary); 
-            float: left; 
-            border: none; 
-            outline: none; 
-            cursor: pointer; 
-            padding: 14px 20px; 
-            font-size: 17px; 
-            width: 50%; 
-            color: var(--text-primary);
-        }
-        .tablink:hover { background: var(--input-bg); }
-        .tablink.active { background: var(--header-bg); color: white; }
-        .tabcontent { 
-            display: none; 
-            padding: 20px; 
-            background: var(--bg-secondary); 
-            border-radius: 12px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
-        }
-        form { padding: 25px; margin-bottom: 30px; background: var(--input-bg); border-radius: 8px; }
-        label { 
-            display: block; 
-            margin: 15px 0 5px; 
-            font-weight: bold; 
-            color: var(--text-primary); 
-        }
-        input, select { 
-            padding: 12px; 
-            width: 100%; 
-            border: 1px solid var(--input-border); 
-            border-radius: 6px; 
-            font-size: 16px; 
-            box-sizing: border-box; 
-            background: var(--input-bg);
-            color: var(--text-primary);
-        }
-        button { 
-            background: #28a745; 
-            color: white; 
-            padding: 12px 20px; 
-            border: none; 
-            border-radius: 6px; 
-            font-size: 16px; 
-            cursor: pointer; 
-            width: 100%;
-        }
+        body { font-family: Arial, sans-serif; background: #f4f6f9; padding: 20px; max-width: 1200px; margin: auto; }
+        h1 { text-align: center; color: #333; }
+        .auth-container { max-width: 450px; margin: 100px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .auth-container h2 { text-align: center; color: #007bff; margin-bottom: 30px; }
+        .auth-container input { padding: 12px; width: 100%; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        .auth-container button { background: #007bff; color: white; padding: 12px; width: 100%; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; margin-bottom: 10px; }
+        .auth-container button:hover { background: #0056b3; }
+        .auth-container .link { text-align: center; margin-top: 15px; color: #666; }
+        .auth-container .link a { color: #007bff; text-decoration: none; }
+        .auth-container .link a:hover { text-decoration: underline; }
+        .alert { padding: 15px; margin-bottom: 20px; border-radius: 6px; text-align: center; }
+        .alert-info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-danger { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .logout-btn { position: absolute; top: 20px; right: 20px; background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; }
+        .logout-btn:hover { background: #c82333; }
+        .user-info { position: absolute; top: 20px; left: 20px; background: #28a745; color: white; padding: 10px 15px; border-radius: 6px; font-size: 14px; }
+        #mainApp { display: none; }
+        .tabs { overflow: hidden; border-bottom: 2px solid #007bff; margin-bottom: 30px; }
+        .tablink { background: #f1f1f1; float: left; border: none; outline: none; cursor: pointer; padding: 14px 20px; font-size: 17px; width: 50%; }
+        .tablink:hover { background: #ddd; }
+        .tablink.active { background: #007bff; color: white; }
+        .tabcontent { display: none; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        form { padding: 25px; margin-bottom: 30px; background: #f9f9f9; border-radius: 8px; }
+        label { display: block; margin: 15px 0 5px; font-weight: bold; color: #444; }
+        input, select { padding: 12px; width: 100%; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+        button { background: #28a745; color: white; padding: 12px 20px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
         button:hover { background: #218838; }
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 20px; 
-            background: var(--bg-secondary);
-        }
-        th, td { 
-            padding: 12px; 
-            text-align: left; 
-            border-bottom: 1px solid var(--border-color); 
-            vertical-align: top; 
-            color: var(--text-primary);
-        }
-        th { background: var(--header-bg); color: white; }
-        tr:hover { background: var(--input-bg); }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }
+        th { background: #007bff; color: white; }
+        tr:hover { background: #f8f9fa; }
         .search-input { margin: 15px 0; padding: 10px; width: 100%; }
         .export-btn { background: #ffc107; color: #333; margin: 20px 0; padding: 12px; width: 100%; font-size: 16px; }
         .export-btn:hover { background: #e0a800; }
-        .total-summary { 
-            font-weight: bold; 
-            font-size: 1.3em; 
-            text-align: right; 
-            margin: 30px 0; 
-            background: var(--input-bg); 
-            padding: 20px; 
-            border-radius: 8px; 
-            color: var(--text-primary);
-        }
+        .total-summary { font-weight: bold; font-size: 1.3em; text-align: right; margin: 30px 0; background: #e9ecef; padding: 20px; border-radius: 8px; }
         .filter-select { padding: 12px; margin-bottom: 20px; width: 100%; font-size: 16px; }
         #alasanContainer { display: none; margin-top: 15px; }
         .multi-row { background: #f0f8ff; }
-        .dark-mode .multi-row { background: #1e3a5f; }
-        .hidden { display: none; }
     </style>
 </head>
 <body>
-    <div class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">
-        <span id="themeIcon">🌙</span>
-    </div>
-
-    <!-- Login/Register Page -->
-    <div id="authPage" class="auth-container">
+    <!-- Auth Container -->
+    <div id="authContainer" class="auth-container">
+        <!-- Login Form -->
         <div id="loginForm">
             <h2>🔐 Login</h2>
-            <form id="loginFormElement">
-                <label>Email</label>
-                <input type="email" id="loginEmail" required placeholder="email@example.com">
-                
-                <label>Password</label>
-                <input type="password" id="loginPassword" required placeholder="Password">
-                
-                <button type="submit" style="margin-top: 20px;">Login</button>
-            </form>
-            <div class="auth-toggle">
-                Belum punya akun? <a onclick="showRegister()">Daftar di sini</a>
+            <div id="loginAlert"></div>
+            <input type="email" id="loginEmail" placeholder="Email" required>
+            <input type="password" id="loginPassword" placeholder="Password" required>
+            <button onclick="login()">Masuk</button>
+            <div class="link">
+                Belum punya akun? <a href="#" onclick="showRegister()">Daftar di sini</a>
             </div>
         </div>
 
-        <div id="registerForm" class="hidden">
+        <!-- Register Form -->
+        <div id="registerForm" style="display: none;">
             <h2>📝 Daftar Akun</h2>
-            <form id="registerFormElement">
-                <label>Nama Lengkap</label>
-                <input type="text" id="regNama" required placeholder="Nama lengkap Anda">
-                
-                <label>Email</label>
-                <input type="email" id="regEmail" required placeholder="email@example.com">
-                
-                <label>Password</label>
-                <input type="password" id="regPassword" required placeholder="Minimal 6 karakter">
-                
-                <button type="submit" style="margin-top: 20px;">Daftar</button>
-            </form>
-            <div class="auth-toggle">
-                Sudah punya akun? <a onclick="showLogin()">Login di sini</a>
+            <div id="registerAlert"></div>
+            <input type="text" id="registerName" placeholder="Nama Lengkap" required>
+            <input type="email" id="registerEmail" placeholder="Email" required>
+            <input type="password" id="registerPassword" placeholder="Password (min 6 karakter)" required>
+            <input type="password" id="registerConfirmPassword" placeholder="Konfirmasi Password" required>
+            <button onclick="register()">Daftar</button>
+            <div class="link">
+                Sudah punya akun? <a href="#" onclick="showLogin()">Login di sini</a>
+            </div>
+        </div>
+
+        <!-- Email Verification Notice -->
+        <div id="verificationNotice" style="display: none;">
+            <h2>📧 Verifikasi Email</h2>
+            <div class="alert alert-info">
+                Email verifikasi telah dikirim ke <strong id="verifyEmail"></strong>.<br><br>
+                Silakan cek inbox/spam Anda dan klik link verifikasi.<br><br>
+                Setelah verifikasi, klik tombol di bawah untuk melanjutkan.
+            </div>
+            <button onclick="checkVerification()">Sudah Verifikasi - Masuk</button>
+            <button onclick="resendVerification()" style="background: #6c757d;">Kirim Ulang Email</button>
+            <div class="link">
+                <a href="#" onclick="showLogin()">Kembali ke Login</a>
             </div>
         </div>
     </div>
 
     <!-- Main App -->
-    <div id="mainApp" class="hidden">
-        <div class="user-info">
-            <span>👤 <span id="displayUserName"></span></span>
-            <button class="btn-logout" onclick="logout()">Logout</button>
-        </div>
-
+    <div id="mainApp">
+        <div class="user-info" id="userInfo"></div>
+        <button class="logout-btn" onclick="logout()">Logout</button>
+        
         <h1>Rekap Karyawan Bermalam</h1>
 
         <div class="tabs">
@@ -260,6 +105,9 @@
 
         <div id="Input" class="tabcontent" style="display: block;">
             <form id="laporanForm">
+                <label>Nama Karyawan</label>
+                <input type="text" id="nama" required placeholder="Masukkan nama karyawan">
+
                 <label>Cabang Diinapi</label>
                 <select id="cabang" required>
                     <option value="Twincom Banjarbaru">Twincom Banjarbaru</option>
@@ -271,8 +119,14 @@
                 <label>Tanggal Bermalam</label>
                 <input type="date" id="tanggal" required>
 
+                <label>Biaya Bermalam</label>
+                <select id="biayaBermalam" required>
+                    <option value="30000">Normal - Rp 30.000</option>
+                    <option value="50000">Hari Besar (Idul Fitri, dll) - Rp 50.000</option>
+                </select>
+
                 <label>Jam Datang (Otomatis)</label>
-                <input type="time" id="jamDatang" required readonly style="background: var(--input-bg); cursor: not-allowed;">
+                <input type="time" id="jamDatang" required readonly style="background: #e9ecef; cursor: not-allowed;">
                 <button type="button" id="ambilJam" style="background: #17a2b8; margin-top: 10px; width: 100%;">🕐 Ambil Jam Sekarang</button>
 
                 <div id="alasanContainer">
@@ -280,7 +134,7 @@
                     <input type="text" id="alasanTelat" placeholder="Tuliskan alasan keterlambatan">
                 </div>
 
-                <button type="submit" style="margin-top: 15px;">Tambah Laporan</button>
+                <button type="submit">Tambah Laporan</button>
             </form>
 
             <h2>Daftar Laporan Terbaru</h2>
@@ -303,6 +157,7 @@
                         <th>Jam Datang</th>
                         <th>Nama</th>
                         <th>Cabang</th>
+                        <th>Biaya</th>
                         <th>Alasan Telat</th>
                     </tr>
                 </thead>
@@ -340,6 +195,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 
     <script>
+        // Firebase Config - GANTI DENGAN CONFIG ANDA
 const firebaseConfig = {
   apiKey: "AIzaSyBthcmgxb-S7AOqhQEkRl4gA2tGtc373DE",
   authDomain: "laporan-bermalam.firebaseapp.com",
@@ -350,119 +206,155 @@ const firebaseConfig = {
   appId: "1:999268337318:web:ca06ca521b49347bce9667",
   measurementId: "G-NPZ94WSPXX"
 };
+
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
-        const refLaporan = db.ref('laporan');
-        const refUsers = db.ref('users');
-
-        let currentUser = null;
-        let allData = [];
-        let filteredData = [];
-
-        // Theme Management
-        function toggleTheme() {
-            document.body.classList.toggle('dark-mode');
-            const isDark = document.body.classList.contains('dark-mode');
-            document.getElementById('themeIcon').textContent = isDark ? '☀️' : '🌙';
-            localStorage.setItem('darkMode', isDark);
-        }
-
-        // Load theme preference
-        if (localStorage.getItem('darkMode') === 'true') {
-            document.body.classList.add('dark-mode');
-            document.getElementById('themeIcon').textContent = '☀️';
-        }
 
         // Auth State Observer
-        auth.onAuthStateChanged(user => {
+        let currentUser = null;
+        auth.onAuthStateChanged((user) => {
             if (user) {
-                refUsers.child(user.uid).once('value', snapshot => {
-                    const userData = snapshot.val();
-                    if (userData) {
-                        currentUser = {
-                            uid: user.uid,
-                            email: user.email,
-                            nama: userData.nama
-                        };
-                        showMainApp();
-                    }
-                });
+                if (user.emailVerified) {
+                    currentUser = user;
+                    showMainApp(user);
+                } else {
+                    showVerificationNotice(user.email);
+                }
             } else {
-                showAuthPage();
+                showAuth();
             }
         });
 
-        // Show/Hide Pages
-        function showAuthPage() {
-            document.getElementById('authPage').classList.remove('hidden');
-            document.getElementById('mainApp').classList.add('hidden');
+        function showAuth() {
+            document.getElementById('authContainer').style.display = 'block';
+            document.getElementById('mainApp').style.display = 'none';
         }
 
-        function showMainApp() {
-            document.getElementById('authPage').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            document.getElementById('displayUserName').textContent = currentUser.nama;
-            document.getElementById('tanggal').valueAsDate = new Date();
-            ambilJamRealtime();
+        function showMainApp(user) {
+            document.getElementById('authContainer').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('userInfo').textContent = `👤 ${user.email}`;
+            initApp();
         }
 
         function showLogin() {
-            document.getElementById('loginForm').classList.remove('hidden');
-            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('verificationNotice').style.display = 'none';
+            clearAlerts();
         }
 
         function showRegister() {
-            document.getElementById('loginForm').classList.add('hidden');
-            document.getElementById('registerForm').classList.remove('hidden');
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'block';
+            document.getElementById('verificationNotice').style.display = 'none';
+            clearAlerts();
         }
 
-        // Register
-        document.getElementById('registerFormElement').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const nama = document.getElementById('regNama').value.trim().toUpperCase();
-            const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value;
+        function showVerificationNotice(email) {
+            document.getElementById('authContainer').style.display = 'block';
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('loginForm').style.display = 'none';
+            document.getElementById('registerForm').style.display = 'none';
+            document.getElementById('verificationNotice').style.display = 'block';
+            document.getElementById('verifyEmail').textContent = email;
+        }
+
+        function clearAlerts() {
+            document.getElementById('loginAlert').innerHTML = '';
+            document.getElementById('registerAlert').innerHTML = '';
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const alertDiv = document.getElementById('loginAlert');
+
+            if (!email || !password) {
+                alertDiv.innerHTML = '<div class="alert alert-danger">Email dan password wajib diisi!</div>';
+                return;
+            }
+
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                if (!userCredential.user.emailVerified) {
+                    alertDiv.innerHTML = '<div class="alert alert-danger">Email belum diverifikasi! Cek inbox Anda.</div>';
+                    showVerificationNotice(email);
+                }
+            } catch (error) {
+                let message = 'Login gagal!';
+                if (error.code === 'auth/user-not-found') message = 'Email tidak terdaftar!';
+                if (error.code === 'auth/wrong-password') message = 'Password salah!';
+                if (error.code === 'auth/invalid-email') message = 'Format email tidak valid!';
+                alertDiv.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+            }
+        }
+
+        async function register() {
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            const alertDiv = document.getElementById('registerAlert');
+
+            if (!name || !email || !password || !confirmPassword) {
+                alertDiv.innerHTML = '<div class="alert alert-danger">Semua field wajib diisi!</div>';
+                return;
+            }
 
             if (password.length < 6) {
-                alert('Password minimal 6 karakter!');
+                alertDiv.innerHTML = '<div class="alert alert-danger">Password minimal 6 karakter!</div>';
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                alertDiv.innerHTML = '<div class="alert alert-danger">Konfirmasi password tidak cocok!</div>';
                 return;
             }
 
             try {
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                await refUsers.child(userCredential.user.uid).set({
-                    nama: nama,
-                    email: email,
-                    createdAt: Date.now()
-                });
-                alert('Akun berhasil dibuat!');
+                await userCredential.user.updateProfile({ displayName: name });
+                await userCredential.user.sendEmailVerification();
+                
+                alertDiv.innerHTML = '<div class="alert alert-success">Registrasi berhasil! Email verifikasi telah dikirim.</div>';
+                setTimeout(() => showVerificationNotice(email), 2000);
             } catch (error) {
-                alert('Error: ' + error.message);
+                let message = 'Registrasi gagal!';
+                if (error.code === 'auth/email-already-in-use') message = 'Email sudah terdaftar!';
+                if (error.code === 'auth/invalid-email') message = 'Format email tidak valid!';
+                if (error.code === 'auth/weak-password') message = 'Password terlalu lemah!';
+                alertDiv.innerHTML = `<div class="alert alert-danger">${message}</div>`;
             }
-        });
+        }
 
-        // Login
-        document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
+        async function checkVerification() {
+            await auth.currentUser.reload();
+            if (auth.currentUser.emailVerified) {
+                location.reload();
+            } else {
+                alert('Email belum diverifikasi! Silakan cek inbox/spam Anda.');
+            }
+        }
 
+        async function resendVerification() {
             try {
-                await auth.signInWithEmailAndPassword(email, password);
+                await auth.currentUser.sendEmailVerification();
+                alert('Email verifikasi telah dikirim ulang! Cek inbox/spam Anda.');
             } catch (error) {
-                alert('Error: ' + error.message);
+                alert('Gagal mengirim email. Tunggu beberapa saat lalu coba lagi.');
             }
-        });
+        }
 
-        // Logout
         function logout() {
             if (confirm('Yakin ingin logout?')) {
                 auth.signOut();
             }
         }
 
-        // Form Elements
+        // Main App Logic
+        let refLaporan;
         const form = document.getElementById('laporanForm');
         const jamDatang = document.getElementById('jamDatang');
         const alasanContainer = document.getElementById('alasanContainer');
@@ -474,6 +366,76 @@ const firebaseConfig = {
         const searchInput = document.getElementById('searchInput');
         const filterHari = document.getElementById('filterHari');
         const ambilJamBtn = document.getElementById('ambilJam');
+        let allData = [];
+        let filteredData = [];
+
+        function initApp() {
+            refLaporan = db.ref('laporan');
+            
+            document.getElementById('tanggal').valueAsDate = new Date();
+            ambilJamRealtime();
+
+            ambilJamBtn.addEventListener('click', ambilJamRealtime);
+
+            jamDatang.addEventListener('change', () => {
+                if (jamDatang.value > '22:30') {
+                    alasanContainer.style.display = 'block';
+                    alasanTelat.required = true;
+                } else {
+                    alasanContainer.style.display = 'none';
+                    alasanTelat.required = false;
+                    alasanTelat.value = '';
+                }
+            });
+
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nama = document.getElementById('nama').value.trim().toUpperCase();
+                const cabang = document.getElementById('cabang').value;
+                const tanggal = document.getElementById('tanggal').value;
+                const jam = jamDatang.value;
+                const alasan = jam > '22:30' ? alasanTelat.value.trim() : '';
+                const biaya = parseInt(document.getElementById('biayaBermalam').value);
+
+                if (!nama || !cabang || !tanggal || !jam) {
+                    alert('Semua field wajib diisi!');
+                    return;
+                }
+                if (jam > '22:30' && !alasan) {
+                    alert('Alasan telat wajib diisi!');
+                    return;
+                }
+
+                refLaporan.push({
+                    nama,
+                    cabang,
+                    tanggal,
+                    jamDatang: jam,
+                    alasanTelat: alasan,
+                    biaya: biaya,
+                    timestamp: Date.now()
+                });
+
+                alert('Laporan berhasil ditambahkan!');
+                form.reset();
+                document.getElementById('tanggal').valueAsDate = new Date();
+                document.getElementById('biayaBermalam').value = '30000';
+                alasanContainer.style.display = 'none';
+                ambilJamRealtime();
+            });
+
+            refLaporan.on('value', (snapshot) => {
+                allData = [];
+                const data = snapshot.val();
+                if (data) Object.values(data).forEach(val => allData.push(val));
+                applyFilters();
+                updateBulanFilter();
+                if (document.getElementById('Rekap').style.display === 'block') updateRekap();
+            });
+
+            filterHari.addEventListener('change', applyFilters);
+            searchInput.addEventListener('input', applyFilters);
+        }
 
         function ambilJamRealtime() {
             const now = new Date();
@@ -490,74 +452,6 @@ const firebaseConfig = {
                 alasanTelat.value = '';
             }
         }
-
-        ambilJamBtn.addEventListener('click', ambilJamRealtime);
-
-        jamDatang.addEventListener('change', () => {
-            if (jamDatang.value > '22:30') {
-                alasanContainer.style.display = 'block';
-                alasanTelat.required = true;
-            } else {
-                alasanContainer.style.display = 'none';
-                alasanTelat.required = false;
-                alasanTelat.value = '';
-            }
-        });
-
-        function openTab(evt, tabName) {
-            document.querySelectorAll('.tabcontent').forEach(el => el.style.display = 'none');
-            document.querySelectorAll('.tablink').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabName).style.display = 'block';
-            evt.currentTarget.classList.add('active');
-            if (tabName === 'Rekap') updateRekap();
-        }
-
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            if (!currentUser) {
-                alert('Anda harus login terlebih dahulu!');
-                return;
-            }
-
-            const cabang = document.getElementById('cabang').value;
-            const tanggal = document.getElementById('tanggal').value;
-            const jam = jamDatang.value;
-            const alasan = jam > '22:30' ? alasanTelat.value.trim() : '';
-
-            if (!cabang || !tanggal || !jam) {
-                alert('Semua field wajib diisi!');
-                return;
-            }
-            if (jam > '22:30' && !alasan) {
-                alert('Alasan telat wajib diisi!');
-                return;
-            }
-
-            refLaporan.push({
-                nama: currentUser.nama,
-                userId: currentUser.uid,
-                cabang,
-                tanggal,
-                jamDatang: jam,
-                alasanTelat: alasan,
-                timestamp: Date.now()
-            });
-
-            alert('Laporan berhasil ditambahkan!');
-            form.reset();
-            document.getElementById('tanggal').valueAsDate = new Date();
-            alasanContainer.style.display = 'none';
-            ambilJamRealtime();
-        });
-
-        refLaporan.on('value', (snapshot) => {
-            allData = [];
-            const data = snapshot.val();
-            if (data) Object.values(data).forEach(val => allData.push(val));
-            applyFilters();
-            updateBulanFilter();
-            if (document.getElementById('Rekap').style.display === 'block') updateRekap();
-        });
 
         function applyFilters() {
             const filterValue = filterHari.value;
@@ -589,19 +483,17 @@ const firebaseConfig = {
             renderLaporan();
         }
 
-        filterHari.addEventListener('change', applyFilters);
-        searchInput.addEventListener('input', applyFilters);
-
         function renderLaporan() {
             tabelBody.innerHTML = '';
             
             if (filteredData.length === 0) {
-                tabelBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-secondary);">Tidak ada laporan ditemukan</td></tr>';
+                tabelBody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:#666;">Tidak ada laporan ditemukan</td></tr>';
                 return;
             }
 
             filteredData.sort((a, b) => b.timestamp - a.timestamp).forEach((val, i) => {
                 const waktu = new Date(val.timestamp).toLocaleString('id-ID');
+                const biaya = val.biaya || 30000;
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${i + 1}</td>
@@ -610,10 +502,19 @@ const firebaseConfig = {
                     <td>${val.jamDatang}</td>
                     <td>${val.nama}</td>
                     <td>${val.cabang}</td>
+                    <td>Rp ${biaya.toLocaleString('id-ID')}</td>
                     <td>${val.alasanTelat || '-'}</td>
                 `;
                 tabelBody.appendChild(row);
             });
+        }
+
+        function openTab(evt, tabName) {
+            document.querySelectorAll('.tabcontent').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('.tablink').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).style.display = 'block';
+            evt.currentTarget.classList.add('active');
+            if (tabName === 'Rekap') updateRekap();
         }
 
         function updateBulanFilter() {
@@ -646,7 +547,7 @@ const firebaseConfig = {
         function updateRekap() {
             const filter = bulanRekap.value;
             if (!filter) {
-                rekapBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--text-secondary);">Pilih bulan untuk melihat rekap</td></tr>';
+                rekapBody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:#666;">Pilih bulan untuk melihat rekap</td></tr>';
                 totalSummary.textContent = '';
                 return;
             }
@@ -661,32 +562,41 @@ const firebaseConfig = {
             const group = {};
             filtered.forEach(d => {
                 const key = `${d.nama}|${d.cabang}`;
-                if (!group[key]) group[key] = { nama: d.nama, cabang: d.cabang, tanggal: [] };
-                group[key].tanggal.push(d.tanggal.split('-')[2]);
+                const biaya = d.biaya || 30000;
+                if (!group[key]) group[key] = { nama: d.nama, cabang: d.cabang, entries: [] };
+                group[key].entries.push({
+                    tanggal: d.tanggal.split('-')[2],
+                    biaya: biaya
+                });
             });
 
             const totalPerNama = {};
             Object.values(group).forEach(g => {
-                totalPerNama[g.nama] = (totalPerNama[g.nama] || 0) + g.tanggal.length;
+                const totalMalam = g.entries.length;
+                const totalUang = g.entries.reduce((sum, e) => sum + e.biaya, 0);
+                if (!totalPerNama[g.nama]) {
+                    totalPerNama[g.nama] = { malam: 0, uang: 0 };
+                }
+                totalPerNama[g.nama].malam += totalMalam;
+                totalPerNama[g.nama].uang += totalUang;
             });
 
-            const sortedNama = Object.keys(totalPerNama).sort((a, b) => totalPerNama[b] - totalPerNama[a]);
+            const sortedNama = Object.keys(totalPerNama).sort((a, b) => totalPerNama[b].malam - totalPerNama[a].malam);
 
             rekapBody.innerHTML = '';
             let no = 1;
             let grandTotalMalam = 0;
             let grandTotalUang = 0;
-            const BIAYA = 30000;
 
             sortedNama.forEach(nama => {
                 const entries = Object.values(group).filter(g => g.nama === nama);
-                const totalKaryawan = totalPerNama[nama];
+                const totalKaryawan = totalPerNama[nama].malam;
                 
                 entries.forEach((entry, idx) => {
-                    const tanggalList = entry.tanggal.sort((a, b) => Number(a) - Number(b)).join(', ');
+                    const tanggalList = entry.entries.map(e => e.tanggal).sort((a, b) => Number(a) - Number(b)).join(', ');
                     const tanggalStr = idx === 0 ? tanggalList + ' ' + bulanNama : tanggalList;
-                    const totalMalam = entry.tanggal.length;
-                    const uang = totalMalam * BIAYA;
+                    const totalMalam = entry.entries.length;
+                    const uang = entry.entries.reduce((sum, e) => sum + e.biaya, 0);
 
                     const row = document.createElement('tr');
                     if (idx > 0) row.classList.add('multi-row');
@@ -757,16 +667,26 @@ const firebaseConfig = {
             const group = {};
             filtered.forEach(d => {
                 const key = `${d.nama}|${d.cabang}`;
-                if (!group[key]) group[key] = { nama: d.nama, cabang: d.cabang, tanggal: [] };
-                group[key].tanggal.push(d.tanggal.split('-')[2]);
+                const biaya = d.biaya || 30000;
+                if (!group[key]) group[key] = { nama: d.nama, cabang: d.cabang, entries: [] };
+                group[key].entries.push({
+                    tanggal: d.tanggal.split('-')[2],
+                    biaya: biaya
+                });
             });
 
             const totalPerNama = {};
             Object.values(group).forEach(g => {
-                totalPerNama[g.nama] = (totalPerNama[g.nama] || 0) + g.tanggal.length;
+                const totalMalam = g.entries.length;
+                const totalUang = g.entries.reduce((sum, e) => sum + e.biaya, 0);
+                if (!totalPerNama[g.nama]) {
+                    totalPerNama[g.nama] = { malam: 0, uang: 0 };
+                }
+                totalPerNama[g.nama].malam += totalMalam;
+                totalPerNama[g.nama].uang += totalUang;
             });
 
-            const sortedNama = Object.keys(totalPerNama).sort((a, b) => totalPerNama[b] - totalPerNama[a]);
+            const sortedNama = Object.keys(totalPerNama).sort((a, b) => totalPerNama[b].malam - totalPerNama[a].malam);
 
             const wb = XLSX.utils.book_new();
             const wsData = [];
@@ -775,16 +695,15 @@ const firebaseConfig = {
             wsData.push(['NO', 'NAMA KARYAWAN', 'TANGGAL BERMALAM', 'CABANG DIINAPI', 'TOTAL BERMALAM', 'JUMLAH UANG BERMALAM']);
 
             let no = 1;
-            const BIAYA = 30000;
 
             sortedNama.forEach(nama => {
                 const entries = Object.values(group).filter(g => g.nama === nama);
                 
                 entries.forEach((entry, idx) => {
-                    const tanggalList = entry.tanggal.sort((a, b) => Number(a) - Number(b)).join(', ');
+                    const tanggalList = entry.entries.map(e => e.tanggal).sort((a, b) => Number(a) - Number(b)).join(', ');
                     const tanggalStr = tanggalList + ' ' + bulanNama;
-                    const totalMalam = entry.tanggal.length;
-                    const uang = totalMalam * BIAYA;
+                    const totalMalam = entry.entries.length;
+                    const uang = entry.entries.reduce((sum, e) => sum + e.biaya, 0);
 
                     if (idx === 0) {
                         wsData.push([
