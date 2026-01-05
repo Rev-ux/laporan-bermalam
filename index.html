@@ -5,14 +5,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rekap Karyawan Bermalam</title>
     <style>
-        body { font-family: Arial, sans-serif; background: #f4f6f9; padding: 20px; max-width: 1200px; margin: auto; }
-        h1 { text-align: center; color: #333; }
-        .auth-container { max-width: 450px; margin: 100px auto; background: white; padding: 40px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        :root {
+            --bg-primary: #f4f6f9;
+            --bg-secondary: white;
+            --bg-form: #f9f9f9;
+            --text-primary: #333;
+            --text-secondary: #666;
+            --border-color: #ccc;
+            --input-bg: white;
+            --input-readonly: #e9ecef;
+            --table-hover: #f8f9fa;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-form: #242424;
+            --text-primary: #e0e0e0;
+            --text-secondary: #b0b0b0;
+            --border-color: #444;
+            --input-bg: #333;
+            --input-readonly: #3a3a3a;
+            --table-hover: #3a3a3a;
+        }
+
+        body { 
+            font-family: Arial, sans-serif; 
+            background: var(--bg-primary); 
+            color: var(--text-primary);
+            padding: 20px; 
+            max-width: 1200px; 
+            margin: auto;
+            transition: background 0.3s, color 0.3s;
+        }
+        h1, h2 { color: var(--text-primary); }
+        .theme-toggle {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: #ffc107;
+            color: #333;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 1000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .theme-toggle:hover { background: #e0a800; }
+        .auth-container { 
+            max-width: 450px; 
+            margin: 100px auto; 
+            background: var(--bg-secondary); 
+            color: var(--text-primary);
+            padding: 40px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
         .auth-container h2 { text-align: center; color: #007bff; margin-bottom: 30px; }
-        .auth-container input { padding: 12px; width: 100%; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; }
+        .auth-container input { 
+            padding: 12px; 
+            width: 100%; 
+            margin-bottom: 15px; 
+            border: 1px solid var(--border-color); 
+            border-radius: 6px; 
+            box-sizing: border-box;
+            background: var(--input-bg);
+            color: var(--text-primary);
+        }
         .auth-container button { background: #007bff; color: white; padding: 12px; width: 100%; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; margin-bottom: 10px; }
         .auth-container button:hover { background: #0056b3; }
-        .auth-container .link { text-align: center; margin-top: 15px; color: #666; }
+        .auth-container .link { text-align: center; margin-top: 15px; color: var(--text-secondary); }
         .auth-container .link a { color: #007bff; text-decoration: none; }
         .auth-container .link a:hover { text-decoration: underline; }
         .alert { padding: 15px; margin-bottom: 20px; border-radius: 6px; text-align: center; }
@@ -24,26 +88,38 @@
         .user-info { position: absolute; top: 20px; left: 20px; background: #28a745; color: white; padding: 10px 15px; border-radius: 6px; font-size: 14px; }
         #mainApp { display: none; }
         .tabs { overflow: hidden; border-bottom: 2px solid #007bff; margin-bottom: 30px; }
-        .tablink { background: #f1f1f1; float: left; border: none; outline: none; cursor: pointer; padding: 14px 20px; font-size: 17px; width: 50%; }
-        .tablink:hover { background: #ddd; }
+        .tablink { background: var(--bg-form); color: var(--text-primary); float: left; border: none; outline: none; cursor: pointer; padding: 14px 20px; font-size: 17px; width: 50%; }
+        .tablink:hover { background: #ddd; color: #333; }
         .tablink.active { background: #007bff; color: white; }
-        .tabcontent { display: none; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        form { padding: 25px; margin-bottom: 30px; background: #f9f9f9; border-radius: 8px; }
-        label { display: block; margin: 15px 0 5px; font-weight: bold; color: #444; }
-        input, select { padding: 12px; width: 100%; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+        .tabcontent { display: none; padding: 20px; background: var(--bg-secondary); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        form { padding: 25px; margin-bottom: 30px; background: var(--bg-form); border-radius: 8px; }
+        label { display: block; margin: 15px 0 5px; font-weight: bold; color: var(--text-primary); }
+        input, select { 
+            padding: 12px; 
+            width: 100%; 
+            border: 1px solid var(--border-color); 
+            border-radius: 6px; 
+            font-size: 16px; 
+            box-sizing: border-box;
+            background: var(--input-bg);
+            color: var(--text-primary);
+        }
+        input[readonly] { background: var(--input-readonly) !important; cursor: not-allowed; }
         button { background: #28a745; color: white; padding: 12px 20px; border: none; border-radius: 6px; font-size: 16px; cursor: pointer; }
         button:hover { background: #218838; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #eee; vertical-align: top; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: top; }
         th { background: #007bff; color: white; }
-        tr:hover { background: #f8f9fa; }
+        tr:hover { background: var(--table-hover); }
         .search-input { margin: 15px 0; padding: 10px; width: 100%; }
         .export-btn { background: #ffc107; color: #333; margin: 20px 0; padding: 12px; width: 100%; font-size: 16px; }
         .export-btn:hover { background: #e0a800; }
-        .total-summary { font-weight: bold; font-size: 1.3em; text-align: right; margin: 30px 0; background: #e9ecef; padding: 20px; border-radius: 8px; }
+        .total-summary { font-weight: bold; font-size: 1.3em; text-align: right; margin: 30px 0; background: #e9ecef; padding: 20px; border-radius: 8px; color: #333; }
         .filter-select { padding: 12px; margin-bottom: 20px; width: 100%; font-size: 16px; }
         #alasanContainer { display: none; margin-top: 15px; }
         .multi-row { background: #f0f8ff; }
+        [data-theme="dark"] .multi-row { background: #2a3a4a; }
+        [data-theme="dark"] th { background: #0056b3; }
     </style>
 </head>
 <body>
@@ -93,6 +169,7 @@
 
     <!-- Main App -->
     <div id="mainApp">
+        <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Dark Mode">🌓</button>
         <div class="user-info" id="userInfo"></div>
         <button class="logout-btn" onclick="logout()">Logout</button>
         
@@ -105,8 +182,8 @@
 
         <div id="Input" class="tabcontent" style="display: block;">
             <form id="laporanForm">
-                <label>Nama Karyawan</label>
-                <input type="text" id="nama" required placeholder="Masukkan nama karyawan">
+                <label>Nama Karyawan (Otomatis)</label>
+                <input type="text" id="nama" required placeholder="Nama akan terisi otomatis" readonly style="background: var(--input-readonly); cursor: not-allowed;">
 
                 <label>Cabang Diinapi</label>
                 <select id="cabang" required>
@@ -226,6 +303,18 @@ const firebaseConfig = {
             }
         });
 
+        // Dark Mode Toggle
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+
         function showAuth() {
             document.getElementById('authContainer').style.display = 'block';
             document.getElementById('mainApp').style.display = 'none';
@@ -235,6 +324,11 @@ const firebaseConfig = {
             document.getElementById('authContainer').style.display = 'none';
             document.getElementById('mainApp').style.display = 'block';
             document.getElementById('userInfo').textContent = `👤 ${user.email}`;
+            
+            // Set nama karyawan otomatis dari displayName atau email
+            const namaKaryawan = user.displayName || user.email.split('@')[0];
+            document.getElementById('nama').value = namaKaryawan.toUpperCase();
+            
             initApp();
         }
 
@@ -413,11 +507,16 @@ const firebaseConfig = {
                     jamDatang: jam,
                     alasanTelat: alasan,
                     biaya: biaya,
+                    userId: currentUser.uid,
+                    userEmail: currentUser.email,
                     timestamp: Date.now()
                 });
 
                 alert('Laporan berhasil ditambahkan!');
+                // Reset form kecuali nama
+                const namaSaved = document.getElementById('nama').value;
                 form.reset();
+                document.getElementById('nama').value = namaSaved;
                 document.getElementById('tanggal').valueAsDate = new Date();
                 document.getElementById('biayaBermalam').value = '30000';
                 alasanContainer.style.display = 'none';
